@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מערכת מעקב פיננסי</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: all 0.3s;
+            border: none;
+            background: transparent;
+        }
+
+        .tab:hover {
+            background: #e9ecef;
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .content-hidden {
+            display: none;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .month-selector {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .month-selector label {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .month-selector select {
+            padding: 10px 15px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .form-section h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .sub-category {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border-right: 4px solid #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: transform 0.2s;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .summary-card h4 {
+            font-size: 1em;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .summary-card .amount {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .chart-container {
+            margin-top: 30px;
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+        }
+
+        .chart-container h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto !important;
+        }
+
+        .months-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .month-badge {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .expense-details {
+            margin-top: 30px;
+        }
+
+        .expense-item {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-right: 4px solid #764ba2;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .expense-item strong {
+            color: #667eea;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .expense-entry {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            position: relative;
+        }
+
+        .expense-entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .remove-btn {
+            background: #f5576c;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .remove-btn:hover {
+            background: #e04555;
+        }
+
+        .add-entry-btn {
+            background: #43e97b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .add-entry-btn:hover {
+            background: #38d66a;
+        }
+
+        .sub-category-title {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            border-radius: 8px 8px 0 0;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .entries-container {
+            padding: 15px;
+            background: #fafafa;
+        }
+
+        .category-total {
+            background: #667eea;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 0 0 8px 8px;
+            font-weight: bold;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 מערכת מעקב פיננסי</h1>
+            <p>נהל את הכספים שלך בצורה חכמה ויעילה</p>
+        </div>
+
+        <div class="tabs content-sections">
+            <button class="tab active" onclick="showTab('income')">הכנסות</button>
+            <button class="tab" onclick="showTab('expenses')">הוצאות</button>
+            <button class="tab" onclick="showTab('dashboard')">לוח בקרה</button>
+        </div>
+
+        <div class="content">
+            <!-- Month Selector -->
+            <div class="month-selector">
+                <label>בחר חודש:</label>
+                <select id="monthSelectDropdown" onchange="updateMonth()">
+                    <option value="">-- בחר חודש קיים --</option>
+                </select>
+                <span style="margin: 0 20px; font-weight: bold;">או</span>
+                <label>צור חודש חדש:</label>
+                <select id="yearSelect">
+                    <option value="">בחר שנה</option>
+                </select>
+                <select id="monthSelect">
+                    <option value="">בחר חודש</option>
+                    <option value="01">ינואר</option>
+                    <option value="02">פברואר</option>
+                    <option value="03">מרץ</option>
+                    <option value="04">אפריל</option>
+                    <option value="05">מאי</option>
+                    <option value="06">יוני</option>
+                    <option value="07">יולי</option>
+                    <option value="08">אוגוסט</option>
+                    <option value="09">ספטמבר</option>
+                    <option value="10">אוקטובר</option>
+                    <option value="11">נובמבר</option>
+                    <option value="12">דצמבר</option>
+                </select>
+                <button class="btn" onclick="addNewMonth()">צור חודש</button>
+            </div>
+
+            <div class="content-sections" id="mainContent">
+            <div id="income" class="tab-content active">
+                <div class="form-section">
+                    <h3>📈 הכנסות</h3>
+                    
+                    <div class="sub-category">
+                        <div class="form-group">
+                            <label>יתרה בעו"ש</label>
+                            <input type="number" id="income-balance" placeholder="סכום" />
+                            <textarea id="income-balance-desc" placeholder="תיאור"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="sub-category">
+                        <div class="form-group">
+                            <label>שכר עבודה</label>
+                            <input type="number" id="income-salary" placeholder="סכום" />
+                            <textarea id="income-salary-desc" placeholder="תיאור"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="sub-category">
+                        <div class="form-group">
+                            <label>אחר</label>
+                            <input type="number" id="income-other" placeholder="סכום" />
+                            <textarea id="income-other-desc" placeholder="תיאור"></textarea>
+                        </div>
+                    </div>
+
+                    <button class="btn" onclick="saveIncome()">שמור הכנסות</button>
+                </div>
+            </div>
+
+            <!-- Expenses Tab -->
+            <div id="expenses" class="tab-content">
+                <div class="form-section">
+                    <h3>💳 התחייבויות - כרטיס אשראי 1 (אמריקן אקספרס)</h3>
+                    
+                    <div class="sub-category">
+                        <div class="sub-category-title">מזון מהיר</div>
+                        <div class="entries-container" id="amex-fastfood-entries"></div>
+                        <button class="add-entry-btn" onclick="addExpenseEntry('amex-fastfood')">+ הוסף הוצאה</button>
+                        <div class="category-total" id="amex-fastfood-total">סה"כ: ₪0</div>
+                    </div>
+
+                    <div class="sub-category">
+                        <div class="sub-category-title">בגדים וקניות אופנה</div>
+                        <div class="entries-container" id="amex-fashion-entries"></div>
+                        <button class="add-entry-btn" onclick="addExpenseEntry('amex-fashion')">+ הוסף הוצאה</button>
+                        <div class="category-total" id="amex-fashion-total">סה"כ: ₪0</div>
+                    </div>
+
+                    <div class="sub-category">
+                        <div class="sub-category-title">קניות רגילות (סופרים, סופר פארם וכו')</div>
+                        <div class="entries-container" id="amex-regular-entries"></div>
+                        <button class="add-entry-btn" onclick="addExpenseEntry('amex-regular')">+ הוסף הוצאה</button>
+                        <div class="category-total" id="amex-regular-total">סה"כ: ₪0</div>
+                    </div>
+
+                    <div class="sub-category">
+                        <div class="sub-category-title">יציאות ובילויים</div>
+                        <div class="entries-container" id="amex-entertainment-entries"></div>
+                        <button class="add-entry-btn" onclick="addExpenseEntry('amex-entertainment')">+ הוסף הוצאה</button>
+                        <div class="category-total" id="amex-entertainment-total">סה"כ: ₪0</div>
+                    </div>
+
+                    <div class="sub-category">
+                        <div class="sub-category-title">תשלומי רכב שוטפים</div>
+                        <div class="entries-container" id="amex-car-entries"></div>
+                        <button class="add-entry-btn" onclick="addExpenseEntry('amex-car')">+ הוסף הוצאה</button>
+                        <div class="category-total" id="amex-car-total">סה"כ: ₪0</div>
+                    </div>
+
+                    <div class="sub-category">
+                        <div class="sub-category-title">ביטוחים שוטפים</div>
+                        <div class="entries-container" id="amex-insurance-entries"></div>
+                        <button class="add-entry-btn" onclick="addExpenseEntry('amex-insurance')">+ הוסף הוצאה</button>
+                        <div class="category-total" id="amex-insurance-total">סה"כ: ₪0</div>
+                    </div>
+
+                    <div class="sub-category">
+                        <div class="sub-category-title">שירותים ומינויים</div>
+                        <div class="entries-container" id="amex-subscriptions-entries"></div>
+                        <button class="add-entry-btn" onclick="addExpenseEntry('amex-subscriptions')">+ הוסף הוצאה</button>
+                        <div class="category-total" id="amex-subscriptions-total">סה"כ: ₪0</div>
+                    </div>
+
+                    <div class="sub-category">
+                        <div class="sub-category-title">אחר</div>
+                        <div class="entries-container" id="amex-other-entries"></div>
+                        <button class="add-entry-btn" onclick="addExpenseEntry('amex-other')">+ הוסף הוצאה</button>
+                        <div class="category-total" id="amex-other-total">סה"כ: ₪0</div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>💳 התחייבויות - כרטיס אשראי 2 (מאסטרקארד)</h3>
+                    
+                    <div class="sub-category">
+                        <div class="sub-category-title">מזון מהיר</div>
+                        <div class="entries-container" id="mastercard-fastfood-entries"></div>
+                        <button class="add-entry-btn" onclick="addExpenseEntry('mastercard-fastfood')">+ הוסף הוצאה</button>
+                        <div class="category-total" id="mastercard-fastfood-total">סה"כ: ₪0</div>
+                    </div>
+
+                    <div class="sub-category">
+                        <div class="sub-category-title">בגדים וקניות אופנה</div>
+                        <div class="entries-container" id="mastercard-fashion-entries"></div>
+                        <button class="add-entry-btn" onclick="addExpenseEntry('mastercard-fashion')">+ הוסף הוצאה</button>
+                        <div class="category-total" id="mastercard-fashion-total">סה"כ: ₪0</div>
+                    </div>
+
+                    <div class="sub-category">
+                        <div class="sub-category-title">קניות רגילות (סופרים, סופר פארם וכו')</div>
+                        <div class="entries-container" id="mastercard-regular-entries"></div>
+                        <button class="add-entry-btn" onclick="addExpenseEntry('mastercard-regular')">+ הוסף הוצאה</button>
+                        <div class="category-total" id="mastercard-regular-total">סה"כ: ₪0</div>
+                    </div>
+
+                    <div class="sub-category">
+                        <div class="sub-category-title">יציאות ובילויים</div>
+                        <div class="entries-container" id="mastercard-entertainment-entries"></div>
+                        <button class="add-entry-btn" onclick="addExpenseEntry('mastercard-entertainment')">+ הוסף הוצאה</button>
+                        <div class="category-total" id="mastercard-entertainment-total">סה"כ: ₪0</div>
+                    </div>
+
+                    <div class="sub-category">
+                        <div class="sub-category-title">תשלומי רכב שוטפים</div>
+                        <div class="entries-container" id="mastercard-car-entries"></div>
+                        <button class="add-entry-btn" onclick="addExpenseEntry('mastercard-car')">+ הוסף הוצאה</button>
+                        <div class="category-total" id="mastercard-car-total">סה"כ: ₪0</div>
+                    </div>
+
+                    <div class="sub-category">
+                        <div class="sub-category-title">ביטוחים שוטפים</div>
+                        <div class="entries-container" id="mastercard-insurance-entries"></div>
+                        <button class="add-entry-btn" onclick="addExpenseEntry('mastercard-insurance')">+ הוסף הוצאה</button>
+                        <div class="category-total" id="mastercard-insurance-total">סה"כ: ₪0</div>
+                    </div>
+
+                    <div class="sub-category">
+                        <div class="sub-category-title">שירותים ומינויים</div>
+                        <div class="entries-container" id="mastercard-subscriptions-entries"></div>
+                        <button class="add-entry-btn" onclick="addExpenseEntry('mastercard-subscriptions')">+ הוסף הוצאה</button>
+                        <div class="category-total" id="mastercard-subscriptions-total">סה"כ: ₪0</div>
+                    </div>
+
+                    <div class="sub-category">
+                        <div class="sub-category-title">אחר</div>
+                        <div class="entries-container" id="mastercard-other-entries"></div>
+                        <button class="add-entry-btn" onclick="addExpenseEntry('mastercard-other')">+ הוסף הוצאה</button>
+                        <div class="category-total" id="mastercard-other-total">סה"כ: ₪0</div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>🏦 נכסים</h3>
+                    
+                    <div class="sub-category">
+                        <div class="sub-category-title">השכלה ומקצוע</div>
+                        <div class="entries-container" id="assets-education-entries"></div>
+                        <button class="add-entry-btn" onclick="addExpenseEntry('assets-education')">+ הוסף הוצאה</button>
+                        <div class="category-total" id="assets-education-total">סה"כ: ₪0</div>
+                    </div>
+
+                    <div class="sub-category">
+                        <div class="sub-category-title">השקעות שוק ההון</div>
+                        <div class="entries-container" id="assets-investments-entries"></div>
+                        <button class="add-entry-btn" onclick="addExpenseEntry('assets-investments')">+ הוסף הוצאה</button>
+                        <div class="category-total" id="assets-investments-total">סה"כ: ₪0</div>
+                    </div>
+
+                    <div class="sub-category">
+                        <div class="sub-category-title">חסכונות יזומים</div>
+                        <div class="entries-container" id="assets-savings-entries"></div>
+                        <button class="add-entry-btn" onclick="addExpenseEntry('assets-savings')">+ הוסף הוצאה</button>
+                        <div class="category-total" id="assets-savings-total">סה"כ: ₪0</div>
+                    </div>
+
+                    <div class="sub-category">
+                        <div class="sub-category-title">ציוד ששומר על ערך</div>
+                        <div class="entries-container" id="assets-equipment-entries"></div>
+                        <button class="add-entry-btn" onclick="addExpenseEntry('assets-equipment')">+ הוסף הוצאה</button>
+                        <div class="category-total" id="assets-equipment-total">סה"כ: ₪0</div>
+                    </div>
+
+                    <div class="sub-category">
+                        <div class="sub-category-title">חדר כושר</div>
+                        <div class="entries-container" id="assets-gym-entries"></div>
+                        <button class="add-entry-btn" onclick="addExpenseEntry('assets-gym')">+ הוסף הוצאה</button>
+                        <div class="category-total" id="assets-gym-total">סה"כ: ₪0</div>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="saveExpenses()">שמור הוצאות</button>
+            </div>
+
+            <!-- Dashboard Tab -->
+            <div id="dashboard" class="tab-content">
+                <h2 style="color: #667eea; margin-bottom: 20px;">📊 לוח בקרה</h2>
+                
+                <div class="summary" id="summaryCards"></div>
+
+                <div class="charts-grid">
+                    <div class="chart-container">
+                        <h3>גרף עוגה - התפלגות הוצאות</h3>
+                        <canvas id="pieChart"></canvas>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3>גרף עמודות - השוואת הכנסות והוצאות</h3>
+                        <canvas id="barChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3>חודשים עם נתונים</h3>
+                    <div class="months-list" id="monthsList"></div>
+                </div>
+
+                <div class="expense-details" id="expenseDetails"></div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let data = JSON.parse(localStorage.getItem('financialData')) || {};
+        let currentMonth = '';
+        let entryCounter = 0;
+
+        const expenseCategories = [
+            'amex-fastfood', 'amex-fashion', 'amex-regular', 'amex-entertainment',
+            'amex-car', 'amex-insurance', 'amex-subscriptions', 'amex-other',
+            'mastercard-fastfood', 'mastercard-fashion', 'mastercard-regular', 'mastercard-entertainment',
+            'mastercard-car', 'mastercard-insurance', 'mastercard-subscriptions', 'mastercard-other',
+            'assets-education', 'assets-investments', 'assets-savings', 'assets-equipment', 'assets-gym'
+        ];
+
+        const monthNames = {
+            '01': 'ינואר',
+            '02': 'פברואר',
+            '03': 'מרץ',
+            '04': 'אפריל',
+            '05': 'מאי',
+            '06': 'יוני',
+            '07': 'יולי',
+            '08': 'אוגוסט',
+            '09': 'ספטמבר',
+            '10': 'אוקטובר',
+            '11': 'נובמבר',
+            '12': 'דצמבר'
+        };
+
+        function initializeYearSelect() {
+            const yearSelect = document.getElementById('yearSelect');
+            const currentYear = new Date().getFullYear();
+            
+            for (let year = currentYear; year >= 2020; year--) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearSelect.appendChild(option);
+            }
+        }
+
+        function showContent() {
+            document.querySelectorAll('.content-sections').forEach(section => {
+                section.style.display = 'flex';
+            });
+            document.getElementById('mainContent').style.display = 'block';
+        }
+
+        function hideContent() {
+            document.querySelectorAll('.content-sections').forEach(section => {
+                section.style.display = 'none';
+            });
+            document.getElementById('mainContent').style.display = 'none';
+        }
+
+        function addExpenseEntry(category, amount = '', description = '', entryId = null) {
+            if (!entryId) {
+                entryId = 'entry-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+            }
+
+            const container = document.getElementById(category + '-entries');
+            const entryDiv = document.createElement('div');
+            entryDiv.className = 'expense-entry';
+            entryDiv.id = entryId;
+            
+            entryDiv.innerHTML = `
+                <div class="expense-entry-header">
+                    <span style="font-weight: bold; color: #667eea;">הוצאה ${container.children.length + 1}</span>
+                    <button class="remove-btn" onclick="removeExpenseEntry('${category}', '${entryId}')">🗑️ מחק</button>
+                </div>
+                <div class="form-group">
+                    <label>סכום (₪)</label>
+                    <input type="number" class="expense-amount" data-category="${category}" value="${amount}" placeholder="הכנס סכום" onchange="updateCategoryTotal('${category}')">
+                </div>
+                <div class="form-group">
+                    <label>תיאור</label>
+                    <textarea class="expense-description" placeholder="תיאור ההוצאה (למשל: ארוחת צהריים במסעדה)">${description}</textarea>
+                </div>
+            `;
+            
+            container.appendChild(entryDiv);
+            updateCategoryTotal(category);
+        }
+
+        function removeExpenseEntry(category, entryId) {
+            const entry = document.getElementById(entryId);
+            if (entry) {
+                entry.remove();
+                updateCategoryTotal(category);
+                // Renumber entries
+                const container = document.getElementById(category + '-entries');
+                Array.from(container.children).forEach((child, index) => {
+                    const header = child.querySelector('.expense-entry-header span');
+                    if (header) {
+                        header.textContent = `הוצאה ${index + 1}`;
+                    }
+                });
+            }
+        }
+
+        function updateCategoryTotal(category) {
+            const container = document.getElementById(category + '-entries');
+            const amounts = container.querySelectorAll('.expense-amount');
+            let total = 0;
+            
+            amounts.forEach(input => {
+                total += parseFloat(input.value) || 0;
+            });
+            
+            const totalElement = document.getElementById(category + '-total');
+            if (totalElement) {
+                totalElement.textContent = `סה"כ: ₪${total.toLocaleString()}`;
+            }
+        }
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabName === 'dashboard') {
+                updateDashboard();
+            }
+        }
+
+        function updateMonthSelect() {
+            const select = document.getElementById('monthSelectDropdown');
+            select.innerHTML = '<option value="">-- בחר חודש קיים --</option>';
+            
+            Object.keys(data).sort().reverse().forEach(monthKey => {
+                const option = document.createElement('option');
+                option.value = monthKey;
+                
+                // Parse the month key (format: YYYY-MM)
+                const [year, month] = monthKey.split('-');
+                option.textContent = `${monthNames[month]} ${year}`;
+                select.appendChild(option);
+            });
+        }
+
+        function addNewMonth() {
+            const year = document.getElementById('yearSelect').value;
+            const month = document.getElementById('monthSelect').value;
+            
+            if (!year || !month) {
+                alert('אנא בחר שנה וחודש');
+                return;
+            }
+            
+            const newMonthKey = `${year}-${month}`;
+            
+            if (data[newMonthKey]) {
+                alert('חודש זה כבר קיים במערכת');
+                currentMonth = newMonthKey;
+                document.getElementById('monthSelectDropdown').value = newMonthKey;
+                loadMonthData();
+                showContent();
+                return;
+            }
+            
+            currentMonth = newMonthKey;
+            data[currentMonth] = {
+                income: {},
+                expenses: {}
+            };
+            
+            localStorage.setItem('financialData', JSON.stringify(data));
+            updateMonthSelect();
+            document.getElementById('monthSelectDropdown').value = newMonthKey;
+            
+            // Reset form selections
+            document.getElementById('yearSelect').value = '';
+            document.getElementById('monthSelect').value = '';
+            
+            loadMonthData();
+            showContent();
+            alert(`חודש ${monthNames[month]} ${year} נוצר בהצלחה!`);
+        }
+
+        function updateMonth() {
+            currentMonth = document.getElementById('monthSelectDropdown').value;
+            if (currentMonth) {
+                loadMonthData();
+                showContent();
+            } else {
+                clearForms();
+                hideContent();
+            }
+        }
+
+        function loadMonthData() {
+            if (!currentMonth || !data[currentMonth]) return;
+
+            const monthData = data[currentMonth];
+            
+            // Load income
+            if (monthData.income) {
+                document.getElementById('income-balance').value = monthData.income.balance || '';
+                document.getElementById('income-balance-desc').value = monthData.income.balanceDesc || '';
+                document.getElementById('income-salary').value = monthData.income.salary || '';
+                document.getElementById('income-salary-desc').value = monthData.income.salaryDesc || '';
+                document.getElementById('income-other').value = monthData.income.other || '';
+                document.getElementById('income-other-desc').value = monthData.income.otherDesc || '';
+            }
+
+            // Clear all expense entries
+            expenseCategories.forEach(category => {
+                const container = document.getElementById(category + '-entries');
+                if (container) {
+                    container.innerHTML = '';
+                }
+            });
+
+            // Load expenses
+            if (monthData.expenses) {
+                expenseCategories.forEach(category => {
+                    if (monthData.expenses[category] && Array.isArray(monthData.expenses[category])) {
+                        monthData.expenses[category].forEach(entry => {
+                            addExpenseEntry(category, entry.amount, entry.description, entry.id);
+                        });
+                    }
+                });
+            }
+
+            // Update all totals
+            expenseCategories.forEach(category => {
+                updateCategoryTotal(category);
+            });
+        }
+
+        function clearForms() {
+            document.querySelectorAll('input[type="number"], textarea').forEach(input => {
+                input.value = '';
+            });
+            
+            // Clear all expense entries
+            expenseCategories.forEach(category => {
+                const container = document.getElementById(category + '-entries');
+                if (container) {
+                    container.innerHTML = '';
+                }
+                updateCategoryTotal(category);
+            });
+        }
+
+        function saveIncome() {
+            if (!currentMonth) {
+                alert('אנא בחר חודש תחילה');
+                return;
+            }
+
+            if (!data[currentMonth]) {
+                data[currentMonth] = { income: {}, expenses: {} };
+            }
+
+            data[currentMonth].income = {
+                balance: parseFloat(document.getElementById('income-balance').value) || 0,
+                balanceDesc: document.getElementById('income-balance-desc').value,
+                salary: parseFloat(document.getElementById('income-salary').value) || 0,
+                salaryDesc: document.getElementById('income-salary-desc').value,
+                other: parseFloat(document.getElementById('income-other').value) || 0,
+                otherDesc: document.getElementById('income-other-desc').value
+            };
+
+            localStorage.setItem('financialData', JSON.stringify(data));
+            alert('הכנסות נשמרו בהצלחה!');
+            updateMonthSelect();
+        }
+
+        function saveExpenses() {
+            if (!currentMonth) {
+                alert('אנא בחר חודש תחילה');
+                return;
+            }
+
+            if (!data[currentMonth]) {
+                data[currentMonth] = { income: {}, expenses: {} };
+            }
+
+            data[currentMonth].expenses = {};
+
+            expenseCategories.forEach(category => {
+                const container = document.getElementById(category + '-entries');
+                const entries = [];
+                
+                Array.from(container.children).forEach(entryDiv => {
+                    const amount = entryDiv.querySelector('.expense-amount').value;
+                    const description = entryDiv.querySelector('.expense-description').value;
+                    
+                    if (amount && parseFloat(amount) > 0) {
+                        entries.push({
+                            id: entryDiv.id,
+                            amount: parseFloat(amount),
+                            description: description
+                        });
+                    }
+                });
+                
+                if (entries.length > 0) {
+                    data[currentMonth].expenses[category] = entries;
+                }
+            });
+
+            localStorage.setItem('financialData', JSON.stringify(data));
+            alert('הוצאות נשמרו בהצלחה!');
+            updateMonthSelect();
+        }
+
+        let pieChart = null;
+        let barChart = null;
+
+        function updateDashboard() {
+            if (!currentMonth || !data[currentMonth]) {
+                alert('אין נתונים להצגה. אנא בחר חודש עם נתונים.');
+                return;
+            }
+
+            const monthData = data[currentMonth];
+            
+            // Calculate totals
+            const totalIncome = (monthData.income?.balance || 0) + 
+                               (monthData.income?.salary || 0) + 
+                               (monthData.income?.other || 0);
+
+            let totalExpenses = 0;
+            const expensesByCategory = {};
+
+            expenseCategories.forEach(category => {
+                let categoryTotal = 0;
+                if (monthData.expenses[category] && Array.isArray(monthData.expenses[category])) {
+                    monthData.expenses[category].forEach(entry => {
+                        categoryTotal += entry.amount || 0;
+                    });
+                }
+                if (categoryTotal > 0) {
+                    expensesByCategory[category] = categoryTotal;
+                    totalExpenses += categoryTotal;
+                }
+            });
+            
+            const balance = totalIncome - totalExpenses;
+
+            // Update summary cards
+            const summaryHTML = `
+                <div class="summary-card">
+                    <h4>סך הכנסות</h4>
+                    <div class="amount">₪${totalIncome.toLocaleString()}</div>
+                </div>
+                <div class="summary-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <h4>סך הוצאות</h4>
+                    <div class="amount">₪${totalExpenses.toLocaleString()}</div>
+                </div>
+                <div class="summary-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <h4>יתרה</h4>
+                    <div class="amount">₪${balance.toLocaleString()}</div>
+                </div>
+            `;
+            document.getElementById('summaryCards').innerHTML = summaryHTML;
+
+            // Update months list
+            const monthsHTML = Object.keys(data).sort().reverse().map(monthKey => {
+                const [year, month] = monthKey.split('-');
+                return `<div class="month-badge">${monthNames[month]} ${year}</div>`;
+            }).join('');
+            document.getElementById('monthsList').innerHTML = monthsHTML;
+
+            // Prepare expense details
+            const expenseLabels = {
+                'amex-fastfood': 'מזון מהיר (אמקס)',
+                'amex-fashion': 'בגדים ואופנה (אמקס)',
+                'amex-regular': 'קניות רגילות (אמקס)',
+                'amex-entertainment': 'יציאות ובילויים (אמקס)',
+                'amex-car': 'תשלומי רכב (אמקס)',
+                'amex-insurance': 'ביטוחים (אמקס)',
+                'amex-subscriptions': 'שירותים ומינויים (אמקס)',
+                'amex-other': 'אחר (אמקס)',
+                'mastercard-fastfood': 'מזון מהיר (מאסטרקארד)',
+                'mastercard-fashion': 'בגדים ואופנה (מאסטרקארד)',
+                'mastercard-regular': 'קניות רגילות (מאסטרקארד)',
+                'mastercard-entertainment': 'יציאות ובילויים (מאסטרקארד)',
+                'mastercard-car': 'תשלומי רכב (מאסטרקארד)',
+                'mastercard-insurance': 'ביטוחים (מאסטרקארד)',
+                'mastercard-subscriptions': 'שירותים ומינויים (מאסטרקארד)',
+                'mastercard-other': 'אחר (מאסטרקארד)',
+                'assets-education': 'השכלה ומקצוע',
+                'assets-investments': 'השקעות שוק ההון',
+                'assets-savings': 'חסכונות יזומים',
+                'assets-equipment': 'ציוד ששומר על ערך',
+                'assets-gym': 'חדר כושר'
+            };
+
+            // Create pie chart data
+            const pieData = [];
+            const pieLabels = [];
+            Object.keys(expensesByCategory).forEach(key => {
+                if (expensesByCategory[key] > 0) {
+                    pieLabels.push(expenseLabels[key] || key);
+                    pieData.push(expensesByCategory[key]);
+                }
+            });
+
+            // Destroy old charts if they exist
+            if (pieChart) pieChart.destroy();
+            if (barChart) barChart.destroy();
+
+            // Create pie chart
+            const pieCtx = document.getElementById('pieChart').getContext('2d');
+            pieChart = new Chart(pieCtx, {
+                type: 'pie',
+                data: {
+                    labels: pieLabels,
+                    datasets: [{
+                        data: pieData,
+                        backgroundColor: [
+                            '#667eea', '#764ba2', '#f093fb', '#f5576c',
+                            '#4facfe', '#00f2fe', '#43e97b', '#38f9d7',
+                            '#fa709a', '#fee140', '#30cfd0', '#330867',
+                            '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4',
+                            '#ffeaa7', '#dfe6e9', '#74b9ff', '#a29bfe'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            rtl: true,
+                            labels: {
+                                font: { size: 12 }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Create bar chart
+            const barCtx = document.getElementById('barChart').getContext('2d');
+            barChart = new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['הכנסות', 'הוצאות'],
+                    datasets: [{
+                        label: 'סכום (₪)',
+                        data: [totalIncome, totalExpenses],
+                        backgroundColor: [
+                            'rgba(102, 126, 234, 0.8)',
+                            'rgba(245, 87, 108, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(102, 126, 234, 1)',
+                            'rgba(245, 87, 108, 1)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // Create expense details with descriptions
+            let detailsHTML = '<h3 style="color: #667eea; margin: 20px 0;">פירוט הוצאות</h3>';
+            
+            expenseCategories.forEach(category => {
+                if (monthData.expenses[category] && Array.isArray(monthData.expenses[category]) && monthData.expenses[category].length > 0) {
+                    const categoryLabel = expenseLabels[category] || category;
+                    const categoryTotal = expensesByCategory[category] || 0;
+                    
+                    detailsHTML += `
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                            <h4 style="color: #667eea; margin-bottom: 15px;">${categoryLabel} - סה"כ: ₪${categoryTotal.toLocaleString()}</h4>
+                    `;
+                    
+                    monthData.expenses[category].forEach((entry, index) => {
+                        detailsHTML += `
+                            <div class="expense-item" style="margin: 10px 0;">
+                                <div>
+                                    <strong>הוצאה ${index + 1}</strong>
+                                    ${entry.description ? `<p style="margin: 5px 0; color: #666;">${entry.description}</p>` : ''}
+                                </div>
+                                <span style="font-size: 1.2em; font-weight: bold;">₪${entry.amount.toLocaleString()}</span>
+                            </div>
+                        `;
+                    });
+                    
+                    detailsHTML += `</div>`;
+                }
+            });
+            
+            document.getElementById('expenseDetails').innerHTML = detailsHTML;
+        }
+
+        // Initialize
+        initializeYearSelect();
+        updateMonthSelect();
+        hideContent();
+    </script>
+</body>
+</html>
