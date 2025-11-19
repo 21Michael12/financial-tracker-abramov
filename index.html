@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>מערכת מעקב פיננסי</title>
+    <title>מערכת מעקב פיננסי - עם סנכרון ענן</title>
     <style>
         * {
             margin: 0;
@@ -37,6 +37,38 @@
         .header h1 {
             font-size: 2.5em;
             margin-bottom: 10px;
+        }
+
+        .sync-status {
+            background: rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .sync-status.synced {
+            background: rgba(67, 233, 123, 0.3);
+        }
+
+        .sync-status.syncing {
+            background: rgba(255, 193, 7, 0.3);
+        }
+
+        .auth-section {
+            background: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .auth-section input {
+            padding: 15px;
+            margin: 10px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 1em;
+            width: 300px;
+            max-width: 90%;
         }
 
         .tabs {
@@ -187,6 +219,10 @@
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
 
+        .btn-secondary {
+            background: #6c757d;
+        }
+
         .summary {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -272,12 +308,6 @@
             margin-top: 30px;
         }
 
-        @media (max-width: 768px) {
-            .charts-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
         .expense-entry {
             background: white;
             padding: 15px;
@@ -346,16 +376,69 @@
             font-weight: bold;
             text-align: left;
         }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .setup-instructions {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .setup-instructions h3 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        .setup-instructions ol {
+            margin-right: 20px;
+        }
+
+        .setup-instructions li {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+
+        .setup-instructions code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>💰 מערכת מעקב פיננסי</h1>
-            <p>נהל את הכספים שלך בצורה חכמה ויעילה</p>
+            <p>נהל את הכספים שלך בצורה חכמה ויעילה - עם סנכרון בענן</p>
+            <div class="sync-status" id="syncStatus">
+                <span id="syncText">🔄 ממתין לחיבור...</span>
+            </div>
         </div>
 
-        <div class="tabs content-sections">
+        <!-- Auth Section -->
+        <div id="authSection" class="auth-section">
+            <h2>🔐 התחברות / הירשם</h2>
+            <p style="margin: 15px 0;">כדי לסנכרן נתונים בין מכשירים, אנא התחבר או הירשם</p>
+            <div>
+                <input type="email" id="emailInput" placeholder="אימייל" />
+                <input type="password" id="passwordInput" placeholder="סיסמה" />
+            </div>
+            <div style="margin-top: 15px;">
+                <button class="btn" onclick="signIn()">התחבר</button>
+                <button class="btn btn-secondary" onclick="signUp()">הירשם</button>
+            </div>
+            <div id="authError" style="color: red; margin-top: 15px;"></div>
+        </div>
+
+        <div class="tabs content-sections" style="display: none;">
             <button class="tab active" onclick="showTab('income')">הכנסות</button>
             <button class="tab" onclick="showTab('expenses')">הוצאות</button>
             <button class="tab" onclick="showTab('dashboard')">לוח בקרה</button>
@@ -363,7 +446,7 @@
 
         <div class="content">
             <!-- Month Selector -->
-            <div class="month-selector">
+            <div class="month-selector content-sections" style="display: none;">
                 <label>בחר חודש:</label>
                 <select id="monthSelectDropdown" onchange="updateMonth()">
                     <option value="">-- בחר חודש קיים --</option>
@@ -389,9 +472,11 @@
                     <option value="12">דצמבר</option>
                 </select>
                 <button class="btn" onclick="addNewMonth()">צור חודש</button>
+                <button class="btn btn-secondary" onclick="signOut()" style="margin-right: auto;">התנתק</button>
             </div>
 
-            <div class="content-sections" id="mainContent">
+            <div class="content-sections" id="mainContent" style="display: none;">
+            <!-- Income Tab -->
             <div id="income" class="tab-content active">
                 <div class="form-section">
                     <h3>📈 הכנסות</h3>
@@ -617,9 +702,38 @@
         </div>
     </div>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <script>
-        let data = JSON.parse(localStorage.getItem('financialData')) || {};
+        // Firebase Configuration - Updated with your project details
+        const firebaseConfig = {
+            apiKey: "AIzaSyD4MbREsKAkYi7WL-mzi97dAT0UnL2Fm_8",
+            authDomain: "abramov-finance-tracker.firebaseapp.com",
+            projectId: "abramov-finance-tracker",
+            storageBucket: "abramov-finance-tracker.firebasestorage.app",
+            messagingSenderId: "448591919322",
+            appId: "1:448591919322:web:fd2347f99bf38d60314de3",
+            measurementId: "G-LP8HN170NJ"
+        };
+
+        // Initialize Firebase
+        let app, auth, db;
+        try {
+            app = firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            db = firebase.firestore();
+            console.log("Firebase initialized successfully");
+        } catch (error) {
+            console.error("Firebase initialization error:", error);
+            document.getElementById('syncText').textContent = '❌ שגיאה בחיבור - בדוק הגדרות Firebase';
+        }
+
+        let currentUser = null;
+        let data = {};
         let currentMonth = '';
         let entryCounter = 0;
 
@@ -632,19 +746,110 @@
         ];
 
         const monthNames = {
-            '01': 'ינואר',
-            '02': 'פברואר',
-            '03': 'מרץ',
-            '04': 'אפריל',
-            '05': 'מאי',
-            '06': 'יוני',
-            '07': 'יולי',
-            '08': 'אוגוסט',
-            '09': 'ספטמבר',
-            '10': 'אוקטובר',
-            '11': 'נובמבר',
-            '12': 'דצמבר'
+            '01': 'ינואר', '02': 'פברואר', '03': 'מרץ', '04': 'אפריל',
+            '05': 'מאי', '06': 'יוני', '07': 'יולי', '08': 'אוגוסט',
+            '09': 'ספטמבר', '10': 'אוקטובר', '11': 'נובמבר', '12': 'דצמבר'
         };
+
+        // Auth State Observer
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('authSection').style.display = 'none';
+                document.querySelectorAll('.content-sections').forEach(el => el.style.display = 'flex');
+                updateSyncStatus('synced', `✅ מחובר כ-${user.email}`);
+                loadDataFromFirebase();
+            } else {
+                currentUser = null;
+                document.getElementById('authSection').style.display = 'block';
+                document.querySelectorAll('.content-sections').forEach(el => el.style.display = 'none');
+                document.getElementById('mainContent').style.display = 'none';
+                updateSyncStatus('offline', '🔄 לא מחובר');
+            }
+        });
+
+        function updateSyncStatus(status, text) {
+            const statusEl = document.getElementById('syncStatus');
+            const textEl = document.getElementById('syncText');
+            statusEl.className = 'sync-status ' + status;
+            textEl.textContent = text;
+        }
+
+        async function signUp() {
+            const email = document.getElementById('emailInput').value;
+            const password = document.getElementById('passwordInput').value;
+            const errorEl = document.getElementById('authError');
+
+            try {
+                await auth.createUserWithEmailAndPassword(email, password);
+                errorEl.textContent = '';
+            } catch (error) {
+                errorEl.textContent = 'שגיאה: ' + error.message;
+            }
+        }
+
+        async function signIn() {
+            const email = document.getElementById('emailInput').value;
+            const password = document.getElementById('passwordInput').value;
+            const errorEl = document.getElementById('authError');
+
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+                errorEl.textContent = '';
+            } catch (error) {
+                errorEl.textContent = 'שגיאה: ' + error.message;
+            }
+        }
+
+        async function signOut() {
+            await auth.signOut();
+            data = {};
+            currentMonth = '';
+            clearForms();
+        }
+
+        async function loadDataFromFirebase() {
+            if (!currentUser) return;
+            
+            updateSyncStatus('syncing', '⏳ טוען נתונים...');
+            
+            try {
+                const docRef = db.collection('users').doc(currentUser.uid);
+                const doc = await docRef.get();
+                
+                if (doc.exists) {
+                    data = doc.data().financialData || {};
+                    updateMonthSelect();
+                    updateSyncStatus('synced', `✅ מחובר כ-${currentUser.email}`);
+                } else {
+                    data = {};
+                    updateSyncStatus('synced', `✅ מחובר כ-${currentUser.email}`);
+                }
+            } catch (error) {
+                console.error("Error loading data:", error);
+                updateSyncStatus('error', '❌ שגיאה בטעינת נתונים');
+            }
+        }
+
+        async function saveDataToFirebase() {
+            if (!currentUser) return;
+            
+            updateSyncStatus('syncing', '⏳ שומר...');
+            
+            try {
+                await db.collection('users').doc(currentUser.uid).set({
+                    financialData: data,
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                updateSyncStatus('synced', `✅ נשמר בענן`);
+                setTimeout(() => {
+                    updateSyncStatus('synced', `✅ מחובר כ-${currentUser.email}`);
+                }, 2000);
+            } catch (error) {
+                console.error("Error saving data:", error);
+                updateSyncStatus('error', '❌ שגיאה בשמירה');
+            }
+        }
 
         function initializeYearSelect() {
             const yearSelect = document.getElementById('yearSelect');
@@ -659,16 +864,10 @@
         }
 
         function showContent() {
-            document.querySelectorAll('.content-sections').forEach(section => {
-                section.style.display = 'flex';
-            });
             document.getElementById('mainContent').style.display = 'block';
         }
 
         function hideContent() {
-            document.querySelectorAll('.content-sections').forEach(section => {
-                section.style.display = 'none';
-            });
             document.getElementById('mainContent').style.display = 'none';
         }
 
@@ -693,7 +892,7 @@
                 </div>
                 <div class="form-group">
                     <label>תיאור</label>
-                    <textarea class="expense-description" placeholder="תיאור ההוצאה (למשל: ארוחת צהריים במסעדה)">${description}</textarea>
+                    <textarea class="expense-description" placeholder="תיאור ההוצאה">${description}</textarea>
                 </div>
             `;
             
@@ -706,7 +905,6 @@
             if (entry) {
                 entry.remove();
                 updateCategoryTotal(category);
-                // Renumber entries
                 const container = document.getElementById(category + '-entries');
                 Array.from(container.children).forEach((child, index) => {
                     const header = child.querySelector('.expense-entry-header span');
@@ -755,8 +953,6 @@
             Object.keys(data).sort().reverse().forEach(monthKey => {
                 const option = document.createElement('option');
                 option.value = monthKey;
-                
-                // Parse the month key (format: YYYY-MM)
                 const [year, month] = monthKey.split('-');
                 option.textContent = `${monthNames[month]} ${year}`;
                 select.appendChild(option);
@@ -789,11 +985,9 @@
                 expenses: {}
             };
             
-            localStorage.setItem('financialData', JSON.stringify(data));
+            saveDataToFirebase();
             updateMonthSelect();
             document.getElementById('monthSelectDropdown').value = newMonthKey;
-            
-            // Reset form selections
             document.getElementById('yearSelect').value = '';
             document.getElementById('monthSelect').value = '';
             
@@ -818,7 +1012,6 @@
 
             const monthData = data[currentMonth];
             
-            // Load income
             if (monthData.income) {
                 document.getElementById('income-balance').value = monthData.income.balance || '';
                 document.getElementById('income-balance-desc').value = monthData.income.balanceDesc || '';
@@ -828,15 +1021,11 @@
                 document.getElementById('income-other-desc').value = monthData.income.otherDesc || '';
             }
 
-            // Clear all expense entries
             expenseCategories.forEach(category => {
                 const container = document.getElementById(category + '-entries');
-                if (container) {
-                    container.innerHTML = '';
-                }
+                if (container) container.innerHTML = '';
             });
 
-            // Load expenses
             if (monthData.expenses) {
                 expenseCategories.forEach(category => {
                     if (monthData.expenses[category] && Array.isArray(monthData.expenses[category])) {
@@ -847,7 +1036,6 @@
                 });
             }
 
-            // Update all totals
             expenseCategories.forEach(category => {
                 updateCategoryTotal(category);
             });
@@ -858,17 +1046,14 @@
                 input.value = '';
             });
             
-            // Clear all expense entries
             expenseCategories.forEach(category => {
                 const container = document.getElementById(category + '-entries');
-                if (container) {
-                    container.innerHTML = '';
-                }
+                if (container) container.innerHTML = '';
                 updateCategoryTotal(category);
             });
         }
 
-        function saveIncome() {
+        async function saveIncome() {
             if (!currentMonth) {
                 alert('אנא בחר חודש תחילה');
                 return;
@@ -887,12 +1072,12 @@
                 otherDesc: document.getElementById('income-other-desc').value
             };
 
-            localStorage.setItem('financialData', JSON.stringify(data));
-            alert('הכנסות נשמרו בהצלחה!');
+            await saveDataToFirebase();
             updateMonthSelect();
+            alert('הכנסות נשמרו בהצלחה!');
         }
 
-        function saveExpenses() {
+        async function saveExpenses() {
             if (!currentMonth) {
                 alert('אנא בחר חודש תחילה');
                 return;
@@ -926,9 +1111,9 @@
                 }
             });
 
-            localStorage.setItem('financialData', JSON.stringify(data));
-            alert('הוצאות נשמרו בהצלחה!');
+            await saveDataToFirebase();
             updateMonthSelect();
+            alert('הוצאות נשמרו בהצלחה!');
         }
 
         let pieChart = null;
@@ -942,7 +1127,6 @@
 
             const monthData = data[currentMonth];
             
-            // Calculate totals
             const totalIncome = (monthData.income?.balance || 0) + 
                                (monthData.income?.salary || 0) + 
                                (monthData.income?.other || 0);
@@ -965,7 +1149,6 @@
             
             const balance = totalIncome - totalExpenses;
 
-            // Update summary cards
             const summaryHTML = `
                 <div class="summary-card">
                     <h4>סך הכנסות</h4>
@@ -982,14 +1165,12 @@
             `;
             document.getElementById('summaryCards').innerHTML = summaryHTML;
 
-            // Update months list
             const monthsHTML = Object.keys(data).sort().reverse().map(monthKey => {
                 const [year, month] = monthKey.split('-');
                 return `<div class="month-badge">${monthNames[month]} ${year}</div>`;
             }).join('');
             document.getElementById('monthsList').innerHTML = monthsHTML;
 
-            // Prepare expense details
             const expenseLabels = {
                 'amex-fastfood': 'מזון מהיר (אמקס)',
                 'amex-fashion': 'בגדים ואופנה (אמקס)',
@@ -1014,7 +1195,6 @@
                 'assets-gym': 'חדר כושר'
             };
 
-            // Create pie chart data
             const pieData = [];
             const pieLabels = [];
             Object.keys(expensesByCategory).forEach(key => {
@@ -1024,11 +1204,9 @@
                 }
             });
 
-            // Destroy old charts if they exist
             if (pieChart) pieChart.destroy();
             if (barChart) barChart.destroy();
 
-            // Create pie chart
             const pieCtx = document.getElementById('pieChart').getContext('2d');
             pieChart = new Chart(pieCtx, {
                 type: 'pie',
@@ -1051,15 +1229,12 @@
                         legend: {
                             position: 'right',
                             rtl: true,
-                            labels: {
-                                font: { size: 12 }
-                            }
+                            labels: { font: { size: 12 } }
                         }
                     }
                 }
             });
 
-            // Create bar chart
             const barCtx = document.getElementById('barChart').getContext('2d');
             barChart = new Chart(barCtx, {
                 type: 'bar',
@@ -1081,20 +1256,11 @@
                 },
                 options: {
                     responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    }
+                    scales: { y: { beginAtZero: true } },
+                    plugins: { legend: { display: false } }
                 }
             });
 
-            // Create expense details with descriptions
             let detailsHTML = '<h3 style="color: #667eea; margin: 20px 0;">פירוט הוצאות</h3>';
             
             expenseCategories.forEach(category => {
@@ -1128,8 +1294,6 @@
 
         // Initialize
         initializeYearSelect();
-        updateMonthSelect();
-        hideContent();
     </script>
 </body>
 </html>
