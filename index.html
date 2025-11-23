@@ -3,8 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>מערכת מעקב פיננסי - עם סנכרון ענן</title>
+    <title>מערכת ניהול פיננסי</title>
     <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --bg-tertiary: #e8e8e8;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --border-color: #ddd;
+            --income-color: #4CAF50;
+            --expense-color: #f44336;
+            --card-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            --button-primary: #2196F3;
+            --button-hover: #1976D2;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #3a3a3a;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --border-color: #444;
+            --card-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,151 +37,64 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+            color: var(--text-primary);
             padding: 20px;
             min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: var(--bg-primary);
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
             padding: 30px;
-            text-align: center;
+            transition: background 0.3s;
         }
 
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
+        /* Auth Styles */
+        #authSection {
+            max-width: 400px;
+            margin: 50px auto;
+            background: var(--bg-primary);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
         }
 
-        .sync-status {
-            background: rgba(255,255,255,0.2);
-            padding: 10px 20px;
-            border-radius: 20px;
-            display: inline-block;
-            margin-top: 10px;
-        }
-
-        .sync-status.synced {
-            background: rgba(67, 233, 123, 0.3);
-        }
-
-        .sync-status.syncing {
-            background: rgba(255, 193, 7, 0.3);
-        }
-
-        .auth-section {
-            background: #f8f9fa;
-            padding: 30px;
-            text-align: center;
-        }
-
-        .auth-section input {
-            padding: 15px;
-            margin: 10px;
-            border: 2px solid #667eea;
-            border-radius: 8px;
-            font-size: 1em;
-            width: 300px;
-            max-width: 90%;
-        }
-
-        .tabs {
+        .auth-tabs {
             display: flex;
-            background: #f8f9fa;
-            border-bottom: 2px solid #e0e0e0;
-        }
-
-        .tab {
-            flex: 1;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            font-size: 1.1em;
-            font-weight: bold;
-            transition: all 0.3s;
-            border: none;
-            background: transparent;
-        }
-
-        .tab:hover {
-            background: #e9ecef;
-        }
-
-        .tab.active {
-            background: white;
-            color: #667eea;
-            border-bottom: 3px solid #667eea;
-        }
-
-        .content {
-            padding: 30px;
-        }
-
-        .content-hidden {
-            display: none;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-            animation: fadeIn 0.5s;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .month-selector {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
+            gap: 10px;
             margin-bottom: 30px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
+            border-bottom: 2px solid var(--border-color);
         }
 
-        .month-selector label {
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-
-        .month-selector select {
-            padding: 10px 15px;
-            border: 2px solid #667eea;
-            border-radius: 8px;
-            font-size: 1em;
+        .auth-tab {
+            flex: 1;
+            padding: 15px;
+            background: transparent;
+            border: none;
             cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
         }
 
-        .form-section {
-            background: #f8f9fa;
-            padding: 25px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+        .auth-tab.active {
+            color: var(--button-primary);
+            border-bottom-color: var(--button-primary);
         }
 
-        .form-section h3 {
-            color: #667eea;
-            margin-bottom: 20px;
-            font-size: 1.5em;
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 10px;
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
         }
 
         .form-group {
@@ -167,62 +104,442 @@
         .form-group label {
             display: block;
             margin-bottom: 8px;
-            font-weight: bold;
-            color: #333;
+            color: var(--text-secondary);
+            font-weight: 500;
         }
 
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
+        .form-group input {
             width: 100%;
             padding: 12px;
-            border: 2px solid #ddd;
+            border: 2px solid var(--border-color);
             border-radius: 8px;
-            font-size: 1em;
+            font-size: 16px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
             transition: border-color 0.3s;
         }
 
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
+        .form-group input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: var(--button-primary);
         }
 
-        .form-group textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .sub-category {
-            background: white;
-            padding: 20px;
-            margin: 15px 0;
-            border-radius: 8px;
-            border-right: 4px solid #667eea;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .auth-button {
+            width: 100%;
+            padding: 15px;
+            background: var(--button-primary);
             color: white;
-            padding: 15px 30px;
             border: none;
             border-radius: 8px;
-            font-size: 1.1em;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s;
-            font-weight: bold;
+            transition: background 0.3s;
         }
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        .auth-button:hover {
+            background: var(--button-hover);
         }
 
-        .btn-secondary {
-            background: #6c757d;
+        .auth-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
+        .error-message {
+            color: var(--expense-color);
+            font-size: 14px;
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(244, 67, 54, 0.1);
+            border-radius: 5px;
+            display: none;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h1 {
+            color: var(--text-primary);
+            font-size: 2em;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .theme-toggle {
+            width: 50px;
+            height: 26px;
+            background: var(--border-color);
+            border-radius: 13px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .theme-toggle::before {
+            content: '🌙';
+            position: absolute;
+            left: 2px;
+            top: 2px;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        [data-theme="dark"] .theme-toggle::before {
+            content: '☀️';
+            transform: translateX(24px);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-email {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .logout-btn {
+            padding: 8px 16px;
+            background: var(--expense-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: opacity 0.3s;
+        }
+
+        .logout-btn:hover {
+            opacity: 0.8;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--income-color);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--border-color);
+            overflow-x: auto;
+        }
+
+        .tab {
+            padding: 15px 25px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+        }
+
+        .tab:hover {
+            color: var(--text-primary);
+        }
+
+        .tab.active {
+            color: var(--button-primary);
+            border-bottom-color: var(--button-primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Date Selection */
+        .date-selection {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        select {
+            padding: 12px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: all 0.3s;
+        }
+
+        select:hover {
+            border-color: var(--button-primary);
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--button-primary);
+        }
+
+        /* Card Management Section */
+        .card-management {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .card-management h3 {
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .card-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .card-item {
+            background: var(--bg-primary);
+            padding: 10px 15px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .card-name {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .card-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: opacity 0.3s;
+        }
+
+        .edit-btn {
+            background: #FFC107;
+            color: white;
+        }
+
+        .delete-btn {
+            background: var(--expense-color);
+            color: white;
+        }
+
+        .card-btn:hover {
+            opacity: 0.8;
+        }
+
+        .add-card-section {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .add-card-section input {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .add-card-btn {
+            padding: 10px 20px;
+            background: var(--income-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: opacity 0.3s;
+        }
+
+        .add-card-btn:hover {
+            opacity: 0.8;
+        }
+
+        /* Categories */
+        .category {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            padding: 10px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            transition: background 0.3s;
+        }
+
+        .category-header:hover {
+            background: var(--border-color);
+        }
+
+        .category-header h3 {
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .collapse-icon {
+            transition: transform 0.3s;
+        }
+
+        .category-header.collapsed .collapse-icon {
+            transform: rotate(-90deg);
+        }
+
+        .category-content {
+            max-height: 5000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .category-content.collapsed {
+            max-height: 0;
+        }
+
+        .subcategory {
+            background: var(--bg-primary);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .subcategory h4 {
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .entry-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .entry-row input {
+            padding: 10px;
+            border: 2px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 14px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .entry-description {
+            flex: 2;
+        }
+
+        .entry-amount {
+            flex: 1;
+            text-align: left;
+        }
+
+        .entry-card-select {
+            flex: 1;
+        }
+
+        .remove-entry {
+            background: var(--expense-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        .remove-entry:hover {
+            opacity: 0.8;
+        }
+
+        .add-entry {
+            background: var(--income-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+            transition: opacity 0.3s;
+        }
+
+        .add-entry:hover {
+            opacity: 0.8;
+        }
+
+        /* Summary */
         .summary {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -231,1069 +548,1005 @@
         }
 
         .summary-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
             padding: 25px;
-            border-radius: 10px;
-            text-align: center;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
         }
 
-        .summary-card h4 {
-            font-size: 1em;
+        .summary-card h3 {
+            color: var(--text-secondary);
+            font-size: 14px;
             margin-bottom: 10px;
-            opacity: 0.9;
+            font-weight: 500;
         }
 
         .summary-card .amount {
-            font-size: 2em;
+            font-size: 28px;
             font-weight: bold;
+            margin-bottom: 5px;
         }
 
-        .chart-container {
-            margin-top: 30px;
-            background: #f8f9fa;
-            padding: 25px;
-            border-radius: 10px;
+        .summary-card.income .amount {
+            color: var(--income-color);
         }
 
-        .chart-container h3 {
-            color: #667eea;
-            margin-bottom: 20px;
-            text-align: center;
+        .summary-card.expense .amount {
+            color: var(--expense-color);
         }
 
-        canvas {
-            max-width: 100%;
-            height: auto !important;
+        .summary-card.balance .amount {
+            color: var(--button-primary);
         }
 
-        .months-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .month-badge {
-            background: #667eea;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-weight: bold;
-        }
-
-        .expense-details {
+        /* Card Summary in Dashboard */
+        .cards-summary {
             margin-top: 30px;
         }
 
-        .expense-item {
-            background: white;
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 8px;
-            border-right: 4px solid #764ba2;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .cards-summary h3 {
+            margin-bottom: 15px;
+            color: var(--text-primary);
         }
 
-        .expense-item strong {
-            color: #667eea;
-        }
-
-        .charts-grid {
+        .cards-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 30px;
-            margin-top: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
         }
 
-        .expense-entry {
-            background: white;
+        .card-summary-item {
+            background: var(--bg-secondary);
             padding: 15px;
-            margin: 10px 0;
             border-radius: 8px;
-            border: 2px solid #e0e0e0;
-            position: relative;
+            box-shadow: var(--card-shadow);
         }
 
-        .expense-entry-header {
+        .card-summary-item h4 {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .card-summary-item .card-amount {
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--expense-color);
+        }
+
+        .card-summary-item.bank-transfer {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+        }
+
+        .card-summary-item.bank-transfer h4,
+        .card-summary-item.bank-transfer .card-amount {
+            color: white;
+        }
+
+        /* Scroll to Top Button */
+        .scroll-top {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            width: 50px;
+            height: 50px;
+            background: var(--button-primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .scroll-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .scroll-top:hover {
+            background: var(--button-hover);
+            transform: translateY(-3px);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-primary);
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
         }
 
-        .remove-btn {
-            background: #f5576c;
-            color: white;
+        .modal-header h3 {
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            background: none;
             border: none;
-            padding: 5px 15px;
-            border-radius: 5px;
+            font-size: 24px;
             cursor: pointer;
-            font-size: 0.9em;
+            color: var(--text-secondary);
         }
 
-        .remove-btn:hover {
-            background: #e04555;
+        .modal-body input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
         }
 
-        .add-entry-btn {
-            background: #43e97b;
-            color: white;
-            border: none;
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
             padding: 10px 20px;
+            border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-weight: bold;
-            margin-top: 10px;
-            width: 100%;
+            font-weight: 500;
+            transition: opacity 0.3s;
         }
 
-        .add-entry-btn:hover {
-            background: #38d66a;
-        }
-
-        .sub-category-title {
-            background: #667eea;
+        .modal-btn.primary {
+            background: var(--button-primary);
             color: white;
-            padding: 15px;
-            border-radius: 8px 8px 0 0;
-            font-weight: bold;
-            font-size: 1.1em;
         }
 
-        .entries-container {
-            padding: 15px;
-            background: #fafafa;
+        .modal-btn.secondary {
+            background: var(--border-color);
+            color: var(--text-primary);
         }
 
-        .category-total {
-            background: #667eea;
-            color: white;
-            padding: 10px 15px;
-            border-radius: 0 0 8px 8px;
-            font-weight: bold;
-            text-align: left;
+        .modal-btn:hover {
+            opacity: 0.8;
         }
 
+        /* Responsive */
         @media (max-width: 768px) {
-            .charts-grid {
+            .container {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .tabs {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+            }
+
+            .date-selection {
+                flex-direction: column;
+            }
+
+            select {
+                width: 100%;
+            }
+
+            .entry-row {
+                flex-direction: column;
+            }
+
+            .summary {
                 grid-template-columns: 1fr;
             }
-        }
 
-        .setup-instructions {
-            background: #fff3cd;
-            border: 2px solid #ffc107;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-
-        .setup-instructions h3 {
-            color: #856404;
-            margin-bottom: 15px;
-        }
-
-        .setup-instructions ol {
-            margin-right: 20px;
-        }
-
-        .setup-instructions li {
-            margin: 10px 0;
-            line-height: 1.6;
-        }
-
-        .setup-instructions code {
-            background: #f8f9fa;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: monospace;
+            .scroll-top {
+                bottom: 20px;
+                left: 20px;
+                width: 45px;
+                height: 45px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>💰 מערכת מעקב פיננסי</h1>
-            <p>נהל את הכספים שלך בצורה חכמה ויעילה - עם סנכרון בענן</p>
-            <div class="sync-status" id="syncStatus">
-                <span id="syncText">🔄 ממתין לחיבור...</span>
-            </div>
+    <!-- Auth Section -->
+    <div id="authSection">
+        <h1 style="text-align: center; margin-bottom: 30px; color: var(--text-primary);">מערכת ניהול פיננסי</h1>
+        
+        <div class="auth-tabs">
+            <button class="auth-tab active" onclick="switchAuthTab('login')">התחברות</button>
+            <button class="auth-tab" onclick="switchAuthTab('register')">הרשמה</button>
         </div>
 
-        <!-- Auth Section -->
-        <div id="authSection" class="auth-section">
-            <h2>🔐 התחברות / הירשם</h2>
-            <p style="margin: 15px 0;">כדי לסנכרן נתונים בין מכשירים, אנא התחבר או הירשם</p>
-            <div>
-                <input type="email" id="emailInput" placeholder="אימייל" />
-                <input type="password" id="passwordInput" placeholder="סיסמה" />
+        <form id="loginForm" class="auth-form active" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label>אימייל</label>
+                <input type="email" id="loginEmail" required>
             </div>
-            <div style="margin-top: 15px;">
-                <button class="btn" onclick="signIn()">התחבר</button>
-                <button class="btn btn-secondary" onclick="signUp()">הירשם</button>
+            <div class="form-group">
+                <label>סיסמה</label>
+                <input type="password" id="loginPassword" required>
             </div>
-            <div id="authError" style="color: red; margin-top: 15px;"></div>
-        </div>
+            <button type="submit" class="auth-button">התחבר</button>
+            <div id="loginError" class="error-message"></div>
+        </form>
 
-        <div class="tabs content-sections" style="display: none;">
-            <button class="tab active" onclick="showTab('income')">הכנסות</button>
-            <button class="tab" onclick="showTab('expenses')">הוצאות</button>
-            <button class="tab" onclick="showTab('dashboard')">לוח בקרה</button>
-        </div>
-
-        <div class="content">
-            <!-- Month Selector -->
-            <div class="month-selector content-sections" style="display: none;">
-                <label>בחר חודש:</label>
-                <select id="monthSelectDropdown" onchange="updateMonth()">
-                    <option value="">-- בחר חודש קיים --</option>
-                </select>
-                <span style="margin: 0 20px; font-weight: bold;">או</span>
-                <label>צור חודש חדש:</label>
-                <select id="yearSelect">
-                    <option value="">בחר שנה</option>
-                </select>
-                <select id="monthSelect">
-                    <option value="">בחר חודש</option>
-                    <option value="01">ינואר</option>
-                    <option value="02">פברואר</option>
-                    <option value="03">מרץ</option>
-                    <option value="04">אפריל</option>
-                    <option value="05">מאי</option>
-                    <option value="06">יוני</option>
-                    <option value="07">יולי</option>
-                    <option value="08">אוגוסט</option>
-                    <option value="09">ספטמבר</option>
-                    <option value="10">אוקטובר</option>
-                    <option value="11">נובמבר</option>
-                    <option value="12">דצמבר</option>
-                </select>
-                <button class="btn" onclick="addNewMonth()">צור חודש</button>
-                <button class="btn btn-secondary" onclick="signOut()" style="margin-right: auto;">התנתק</button>
+        <form id="registerForm" class="auth-form" onsubmit="handleRegister(event)">
+            <div class="form-group">
+                <label>אימייל</label>
+                <input type="email" id="registerEmail" required>
             </div>
+            <div class="form-group">
+                <label>סיסמה</label>
+                <input type="password" id="registerPassword" required minlength="6">
+            </div>
+            <div class="form-group">
+                <label>אימות סיסמה</label>
+                <input type="password" id="registerPasswordConfirm" required minlength="6">
+            </div>
+            <button type="submit" class="auth-button">הירשם</button>
+            <div id="registerError" class="error-message"></div>
+        </form>
+    </div>
 
-            <div class="content-sections" id="mainContent" style="display: none;">
-            <!-- Income Tab -->
-            <div id="income" class="tab-content active">
-                <div class="form-section">
-                    <h3>📈 הכנסות</h3>
-                    
-                    <div class="sub-category">
-                        <div class="form-group">
-                            <label>יתרה בעו"ש</label>
-                            <input type="number" id="income-balance" placeholder="סכום" />
-                            <textarea id="income-balance-desc" placeholder="תיאור"></textarea>
-                        </div>
+    <!-- Main App -->
+    <div id="mainApp" style="display: none;">
+        <div class="container">
+            <div class="header">
+                <h1>💰 מערכת ניהול פיננסי</h1>
+                <div class="header-controls">
+                    <div class="status-indicator">
+                        <span class="status-dot"></span>
+                        <span>מסונכרן</span>
                     </div>
-
-                    <div class="sub-category">
-                        <div class="form-group">
-                            <label>שכר עבודה</label>
-                            <input type="number" id="income-salary" placeholder="סכום" />
-                            <textarea id="income-salary-desc" placeholder="תיאור"></textarea>
-                        </div>
+                    <div class="theme-toggle" onclick="toggleTheme()"></div>
+                    <div class="user-info">
+                        <span class="user-email" id="userEmail"></span>
+                        <button class="logout-btn" onclick="handleLogout()">התנתק</button>
                     </div>
-
-                    <div class="sub-category">
-                        <div class="form-group">
-                            <label>אחר</label>
-                            <input type="number" id="income-other" placeholder="סכום" />
-                            <textarea id="income-other-desc" placeholder="תיאור"></textarea>
-                        </div>
-                    </div>
-
-                    <button class="btn" onclick="saveIncome()">שמור הכנסות</button>
                 </div>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('dashboard')">לוח בקרה</button>
+                <button class="tab" onclick="switchTab('income')">הכנסות</button>
+                <button class="tab" onclick="switchTab('expenses')">הוצאות</button>
+            </div>
+
+            <!-- Dashboard Tab -->
+            <div id="dashboard" class="tab-content active">
+                <div class="date-selection">
+                    <select id="dashboardYear" onchange="loadDashboard()"></select>
+                    <select id="dashboardMonth" onchange="loadDashboard()"></select>
+                </div>
+
+                <div class="summary">
+                    <div class="summary-card income">
+                        <h3>סך הכנסות</h3>
+                        <div class="amount" id="totalIncome">₪0</div>
+                    </div>
+                    <div class="summary-card expense">
+                        <h3>סך הוצאות</h3>
+                        <div class="amount" id="totalExpenses">₪0</div>
+                    </div>
+                    <div class="summary-card balance">
+                        <h3>יתרה</h3>
+                        <div class="amount" id="balance">₪0</div>
+                    </div>
+                </div>
+
+                <div class="cards-summary">
+                    <h3>סיכום לפי כרטיסי אשראי</h3>
+                    <div class="cards-grid" id="cardsSummaryGrid"></div>
+                </div>
+            </div>
+
+            <!-- Income Tab -->
+            <div id="income" class="tab-content">
+                <div class="date-selection">
+                    <select id="incomeYear" onchange="loadIncome()"></select>
+                    <select id="incomeMonth" onchange="loadIncome()"></select>
+                </div>
+
+                <div id="incomeCategories"></div>
             </div>
 
             <!-- Expenses Tab -->
             <div id="expenses" class="tab-content">
-                <div class="form-section">
-                    <h3>💳 התחייבויות - כרטיס אשראי 1 (אמריקן אקספרס)</h3>
-                    
-                    <div class="sub-category">
-                        <div class="sub-category-title">מזון מהיר</div>
-                        <div class="entries-container" id="amex-fastfood-entries"></div>
-                        <button class="add-entry-btn" onclick="addExpenseEntry('amex-fastfood')">+ הוסף הוצאה</button>
-                        <div class="category-total" id="amex-fastfood-total">סה"כ: ₪0</div>
-                    </div>
+                <div class="date-selection">
+                    <select id="expensesYear" onchange="loadExpenses()"></select>
+                    <select id="expensesMonth" onchange="loadExpenses()"></select>
+                </div>
 
-                    <div class="sub-category">
-                        <div class="sub-category-title">בגדים וקניות אופנה</div>
-                        <div class="entries-container" id="amex-fashion-entries"></div>
-                        <button class="add-entry-btn" onclick="addExpenseEntry('amex-fashion')">+ הוסף הוצאה</button>
-                        <div class="category-total" id="amex-fashion-total">סה"כ: ₪0</div>
-                    </div>
-
-                    <div class="sub-category">
-                        <div class="sub-category-title">קניות רגילות (סופרים, סופר פארם וכו')</div>
-                        <div class="entries-container" id="amex-regular-entries"></div>
-                        <button class="add-entry-btn" onclick="addExpenseEntry('amex-regular')">+ הוסף הוצאה</button>
-                        <div class="category-total" id="amex-regular-total">סה"כ: ₪0</div>
-                    </div>
-
-                    <div class="sub-category">
-                        <div class="sub-category-title">יציאות ובילויים</div>
-                        <div class="entries-container" id="amex-entertainment-entries"></div>
-                        <button class="add-entry-btn" onclick="addExpenseEntry('amex-entertainment')">+ הוסף הוצאה</button>
-                        <div class="category-total" id="amex-entertainment-total">סה"כ: ₪0</div>
-                    </div>
-
-                    <div class="sub-category">
-                        <div class="sub-category-title">תשלומי רכב שוטפים</div>
-                        <div class="entries-container" id="amex-car-entries"></div>
-                        <button class="add-entry-btn" onclick="addExpenseEntry('amex-car')">+ הוסף הוצאה</button>
-                        <div class="category-total" id="amex-car-total">סה"כ: ₪0</div>
-                    </div>
-
-                    <div class="sub-category">
-                        <div class="sub-category-title">ביטוחים שוטפים</div>
-                        <div class="entries-container" id="amex-insurance-entries"></div>
-                        <button class="add-entry-btn" onclick="addExpenseEntry('amex-insurance')">+ הוסף הוצאה</button>
-                        <div class="category-total" id="amex-insurance-total">סה"כ: ₪0</div>
-                    </div>
-
-                    <div class="sub-category">
-                        <div class="sub-category-title">שירותים ומינויים</div>
-                        <div class="entries-container" id="amex-subscriptions-entries"></div>
-                        <button class="add-entry-btn" onclick="addExpenseEntry('amex-subscriptions')">+ הוסף הוצאה</button>
-                        <div class="category-total" id="amex-subscriptions-total">סה"כ: ₪0</div>
-                    </div>
-
-                    <div class="sub-category">
-                        <div class="sub-category-title">אחר</div>
-                        <div class="entries-container" id="amex-other-entries"></div>
-                        <button class="add-entry-btn" onclick="addExpenseEntry('amex-other')">+ הוסף הוצאה</button>
-                        <div class="category-total" id="amex-other-total">סה"כ: ₪0</div>
+                <!-- Card Management Section -->
+                <div class="card-management">
+                    <h3>ניהול כרטיסי אשראי</h3>
+                    <div class="card-list" id="cardList"></div>
+                    <div class="add-card-section">
+                        <input type="text" id="newCardName" placeholder="שם כרטיס חדש">
+                        <button class="add-card-btn" onclick="addCard()">הוסף כרטיס</button>
                     </div>
                 </div>
 
-                <div class="form-section">
-                    <h3>💳 התחייבויות - כרטיס אשראי 2 (מאסטרקארד)</h3>
-                    
-                    <div class="sub-category">
-                        <div class="sub-category-title">מזון מהיר</div>
-                        <div class="entries-container" id="mastercard-fastfood-entries"></div>
-                        <button class="add-entry-btn" onclick="addExpenseEntry('mastercard-fastfood')">+ הוסף הוצאה</button>
-                        <div class="category-total" id="mastercard-fastfood-total">סה"כ: ₪0</div>
-                    </div>
-
-                    <div class="sub-category">
-                        <div class="sub-category-title">בגדים וקניות אופנה</div>
-                        <div class="entries-container" id="mastercard-fashion-entries"></div>
-                        <button class="add-entry-btn" onclick="addExpenseEntry('mastercard-fashion')">+ הוסף הוצאה</button>
-                        <div class="category-total" id="mastercard-fashion-total">סה"כ: ₪0</div>
-                    </div>
-
-                    <div class="sub-category">
-                        <div class="sub-category-title">קניות רגילות (סופרים, סופר פארם וכו')</div>
-                        <div class="entries-container" id="mastercard-regular-entries"></div>
-                        <button class="add-entry-btn" onclick="addExpenseEntry('mastercard-regular')">+ הוסף הוצאה</button>
-                        <div class="category-total" id="mastercard-regular-total">סה"כ: ₪0</div>
-                    </div>
-
-                    <div class="sub-category">
-                        <div class="sub-category-title">יציאות ובילויים</div>
-                        <div class="entries-container" id="mastercard-entertainment-entries"></div>
-                        <button class="add-entry-btn" onclick="addExpenseEntry('mastercard-entertainment')">+ הוסף הוצאה</button>
-                        <div class="category-total" id="mastercard-entertainment-total">סה"כ: ₪0</div>
-                    </div>
-
-                    <div class="sub-category">
-                        <div class="sub-category-title">תשלומי רכב שוטפים</div>
-                        <div class="entries-container" id="mastercard-car-entries"></div>
-                        <button class="add-entry-btn" onclick="addExpenseEntry('mastercard-car')">+ הוסף הוצאה</button>
-                        <div class="category-total" id="mastercard-car-total">סה"כ: ₪0</div>
-                    </div>
-
-                    <div class="sub-category">
-                        <div class="sub-category-title">ביטוחים שוטפים</div>
-                        <div class="entries-container" id="mastercard-insurance-entries"></div>
-                        <button class="add-entry-btn" onclick="addExpenseEntry('mastercard-insurance')">+ הוסף הוצאה</button>
-                        <div class="category-total" id="mastercard-insurance-total">סה"כ: ₪0</div>
-                    </div>
-
-                    <div class="sub-category">
-                        <div class="sub-category-title">שירותים ומינויים</div>
-                        <div class="entries-container" id="mastercard-subscriptions-entries"></div>
-                        <button class="add-entry-btn" onclick="addExpenseEntry('mastercard-subscriptions')">+ הוסף הוצאה</button>
-                        <div class="category-total" id="mastercard-subscriptions-total">סה"כ: ₪0</div>
-                    </div>
-
-                    <div class="sub-category">
-                        <div class="sub-category-title">אחר</div>
-                        <div class="entries-container" id="mastercard-other-entries"></div>
-                        <button class="add-entry-btn" onclick="addExpenseEntry('mastercard-other')">+ הוסף הוצאה</button>
-                        <div class="category-total" id="mastercard-other-total">סה"כ: ₪0</div>
-                    </div>
-                </div>
-
-                <div class="form-section">
-                    <h3>🏦 נכסים</h3>
-                    
-                    <div class="sub-category">
-                        <div class="sub-category-title">השכלה ומקצוע</div>
-                        <div class="entries-container" id="assets-education-entries"></div>
-                        <button class="add-entry-btn" onclick="addExpenseEntry('assets-education')">+ הוסף הוצאה</button>
-                        <div class="category-total" id="assets-education-total">סה"כ: ₪0</div>
-                    </div>
-
-                    <div class="sub-category">
-                        <div class="sub-category-title">השקעות שוק ההון</div>
-                        <div class="entries-container" id="assets-investments-entries"></div>
-                        <button class="add-entry-btn" onclick="addExpenseEntry('assets-investments')">+ הוסף הוצאה</button>
-                        <div class="category-total" id="assets-investments-total">סה"כ: ₪0</div>
-                    </div>
-
-                    <div class="sub-category">
-                        <div class="sub-category-title">חסכונות יזומים</div>
-                        <div class="entries-container" id="assets-savings-entries"></div>
-                        <button class="add-entry-btn" onclick="addExpenseEntry('assets-savings')">+ הוסף הוצאה</button>
-                        <div class="category-total" id="assets-savings-total">סה"כ: ₪0</div>
-                    </div>
-
-                    <div class="sub-category">
-                        <div class="sub-category-title">ציוד ששומר על ערך</div>
-                        <div class="entries-container" id="assets-equipment-entries"></div>
-                        <button class="add-entry-btn" onclick="addExpenseEntry('assets-equipment')">+ הוסף הוצאה</button>
-                        <div class="category-total" id="assets-equipment-total">סה"כ: ₪0</div>
-                    </div>
-
-                    <div class="sub-category">
-                        <div class="sub-category-title">חדר כושר</div>
-                        <div class="entries-container" id="assets-gym-entries"></div>
-                        <button class="add-entry-btn" onclick="addExpenseEntry('assets-gym')">+ הוסף הוצאה</button>
-                        <div class="category-total" id="assets-gym-total">סה"כ: ₪0</div>
-                    </div>
-                </div>
-
-                <button class="btn" onclick="saveExpenses()">שמור הוצאות</button>
-            </div>
-
-            <!-- Dashboard Tab -->
-            <div id="dashboard" class="tab-content">
-                <h2 style="color: #667eea; margin-bottom: 20px;">📊 לוח בקרה</h2>
-                
-                <div class="summary" id="summaryCards"></div>
-
-                <div class="charts-grid">
-                    <div class="chart-container">
-                        <h3>גרף עוגה - התפלגות הוצאות</h3>
-                        <canvas id="pieChart"></canvas>
-                    </div>
-
-                    <div class="chart-container">
-                        <h3>גרף עמודות - השוואת הכנסות והוצאות</h3>
-                        <canvas id="barChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="chart-container">
-                    <h3>חודשים עם נתונים</h3>
-                    <div class="months-list" id="monthsList"></div>
-                </div>
-
-                <div class="expense-details" id="expenseDetails"></div>
-            </div>
+                <div id="expensesCategories"></div>
             </div>
         </div>
     </div>
 
-    <!-- Firebase SDK -->
+    <!-- Scroll to Top Button -->
+    <button class="scroll-top" onclick="scrollToTop()">↑</button>
+
+    <!-- Edit Card Modal -->
+    <div id="editCardModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>ערוך כרטיס אשראי</h3>
+                <button class="modal-close" onclick="closeEditCardModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="editCardName" placeholder="שם הכרטיס">
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn secondary" onclick="closeEditCardModal()">ביטול</button>
+                <button class="modal-btn primary" onclick="saveCardEdit()">שמור</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
+
     <script>
-        // Firebase Configuration - Updated with your project details
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyD4MbREsKAkYi7WL-mzi97dAT0UnL2Fm_8",
             authDomain: "abramov-finance-tracker.firebaseapp.com",
             projectId: "abramov-finance-tracker",
             storageBucket: "abramov-finance-tracker.firebasestorage.app",
             messagingSenderId: "448591919322",
-            appId: "1:448591919322:web:fd2347f99bf38d60314de3",
-            measurementId: "G-LP8HN170NJ"
+            appId: "1:448591919322:web:fd2347f99bf38d60314de3"
         };
 
         // Initialize Firebase
-        let app, auth, db;
-        try {
-            app = firebase.initializeApp(firebaseConfig);
-            auth = firebase.auth();
-            db = firebase.firestore();
-            console.log("Firebase initialized successfully");
-        } catch (error) {
-            console.error("Firebase initialization error:", error);
-            document.getElementById('syncText').textContent = '❌ שגיאה בחיבור - בדוק הגדרות Firebase';
-        }
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
         let currentUser = null;
-        let data = {};
-        let currentMonth = '';
-        let entryCounter = 0;
+        let currentEditingCard = null;
 
-        const expenseCategories = [
-            'amex-fastfood', 'amex-fashion', 'amex-regular', 'amex-entertainment',
-            'amex-car', 'amex-insurance', 'amex-subscriptions', 'amex-other',
-            'mastercard-fastfood', 'mastercard-fashion', 'mastercard-regular', 'mastercard-entertainment',
-            'mastercard-car', 'mastercard-insurance', 'mastercard-subscriptions', 'mastercard-other',
-            'assets-education', 'assets-investments', 'assets-savings', 'assets-equipment', 'assets-gym'
+        // Hebrew months
+        const hebrewMonths = [
+            'ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני',
+            'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר'
         ];
 
-        const monthNames = {
-            '01': 'ינואר', '02': 'פברואר', '03': 'מרץ', '04': 'אפריל',
-            '05': 'מאי', '06': 'יוני', '07': 'יולי', '08': 'אוגוסט',
-            '09': 'ספטמבר', '10': 'אוקטובר', '11': 'נובמבר', '12': 'דצמבר'
+        // Data structure
+        const categories = {
+            income: [
+                { name: 'יתרת בנק', subcategories: ['יתרה נוכחית'] },
+                { name: 'משכורת', subcategories: ['משכורת חודשית'] },
+                { name: 'הכנסות אחרות', subcategories: ['הכנסות נוספות'] }
+            ],
+            expenses: {
+                obligations: [
+                    { name: 'כרטיס אשראי 1', subcategories: ['מזון מהיר', 'אופנה', 'קניות', 'בילויים', 'תשלום רכב', 'ביטוח', 'שירותים', 'אחר'] },
+                    { name: 'כרטיס אשראי 2', subcategories: ['מזון מהיר', 'אופנה', 'קניות', 'בילויים', 'תשלום רכב', 'ביטוח', 'שירותים', 'אחר'] }
+                ],
+                assets: [
+                    { name: 'השכלה', subcategories: ['לימודים'] },
+                    { name: 'השקעות', subcategories: ['השקעות חודשיות'] },
+                    { name: 'חיסכון', subcategories: ['חיסכון חודשי'] },
+                    { name: 'ציוד', subcategories: ['קניות ציוד'] },
+                    { name: 'חדר כושר', subcategories: ['מנוי חודשי'] }
+                ]
+            }
         };
 
-        // Auth State Observer
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                currentUser = user;
-                document.getElementById('authSection').style.display = 'none';
-                document.querySelectorAll('.content-sections').forEach(el => el.style.display = 'flex');
-                updateSyncStatus('synced', `✅ מחובר כ-${user.email}`);
-                loadDataFromFirebase();
+        // Initialize year/month dropdowns
+        function initializeDropdowns() {
+            const currentYear = new Date().getFullYear();
+            const currentMonth = new Date().getMonth();
+            
+            // If we're in December (month 11), also show next year
+            const maxYear = currentMonth === 11 ? currentYear + 1 : currentYear;
+
+            ['dashboard', 'income', 'expenses'].forEach(prefix => {
+                const yearSelect = document.getElementById(`${prefix}Year`);
+                const monthSelect = document.getElementById(`${prefix}Month`);
+
+                // Years (2020 onwards, including next year if December)
+                for (let year = 2020; year <= maxYear; year++) {
+                    const option = document.createElement('option');
+                    option.value = year;
+                    option.textContent = year;
+                    if (year === currentYear) option.selected = true;
+                    yearSelect.appendChild(option);
+                }
+
+                // Months
+                hebrewMonths.forEach((month, index) => {
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.textContent = month;
+                    if (index === currentMonth) option.selected = true;
+                    monthSelect.appendChild(option);
+                });
+            });
+        }
+
+        // Auth functions
+        function switchAuthTab(tab) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            
+            if (tab === 'login') {
+                document.querySelectorAll('.auth-tab')[0].classList.add('active');
+                document.getElementById('loginForm').classList.add('active');
             } else {
-                currentUser = null;
-                document.getElementById('authSection').style.display = 'block';
-                document.querySelectorAll('.content-sections').forEach(el => el.style.display = 'none');
-                document.getElementById('mainContent').style.display = 'none';
-                updateSyncStatus('offline', '🔄 לא מחובר');
-            }
-        });
-
-        function updateSyncStatus(status, text) {
-            const statusEl = document.getElementById('syncStatus');
-            const textEl = document.getElementById('syncText');
-            statusEl.className = 'sync-status ' + status;
-            textEl.textContent = text;
-        }
-
-        async function signUp() {
-            const email = document.getElementById('emailInput').value;
-            const password = document.getElementById('passwordInput').value;
-            const errorEl = document.getElementById('authError');
-
-            try {
-                await auth.createUserWithEmailAndPassword(email, password);
-                errorEl.textContent = '';
-            } catch (error) {
-                errorEl.textContent = 'שגיאה: ' + error.message;
+                document.querySelectorAll('.auth-tab')[1].classList.add('active');
+                document.getElementById('registerForm').classList.add('active');
             }
         }
 
-        async function signIn() {
-            const email = document.getElementById('emailInput').value;
-            const password = document.getElementById('passwordInput').value;
-            const errorEl = document.getElementById('authError');
+        async function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorDiv = document.getElementById('loginError');
 
             try {
                 await auth.signInWithEmailAndPassword(email, password);
-                errorEl.textContent = '';
             } catch (error) {
-                errorEl.textContent = 'שגיאה: ' + error.message;
+                errorDiv.textContent = getErrorMessage(error.code);
+                errorDiv.style.display = 'block';
             }
         }
 
-        async function signOut() {
-            await auth.signOut();
-            data = {};
-            currentMonth = '';
-            clearForms();
-        }
+        async function handleRegister(event) {
+            event.preventDefault();
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerPasswordConfirm').value;
+            const errorDiv = document.getElementById('registerError');
 
-        async function loadDataFromFirebase() {
-            if (!currentUser) return;
-            
-            updateSyncStatus('syncing', '⏳ טוען נתונים...');
-            
-            try {
-                const docRef = db.collection('users').doc(currentUser.uid);
-                const doc = await docRef.get();
-                
-                if (doc.exists) {
-                    data = doc.data().financialData || {};
-                    updateMonthSelect();
-                    updateSyncStatus('synced', `✅ מחובר כ-${currentUser.email}`);
-                } else {
-                    data = {};
-                    updateSyncStatus('synced', `✅ מחובר כ-${currentUser.email}`);
-                }
-            } catch (error) {
-                console.error("Error loading data:", error);
-                updateSyncStatus('error', '❌ שגיאה בטעינת נתונים');
-            }
-        }
-
-        async function saveDataToFirebase() {
-            if (!currentUser) return;
-            
-            updateSyncStatus('syncing', '⏳ שומר...');
-            
-            try {
-                await db.collection('users').doc(currentUser.uid).set({
-                    financialData: data,
-                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                updateSyncStatus('synced', `✅ נשמר בענן`);
-                setTimeout(() => {
-                    updateSyncStatus('synced', `✅ מחובר כ-${currentUser.email}`);
-                }, 2000);
-            } catch (error) {
-                console.error("Error saving data:", error);
-                updateSyncStatus('error', '❌ שגיאה בשמירה');
-            }
-        }
-
-        function initializeYearSelect() {
-            const yearSelect = document.getElementById('yearSelect');
-            const currentYear = new Date().getFullYear();
-            
-            for (let year = currentYear; year >= 2020; year--) {
-                const option = document.createElement('option');
-                option.value = year;
-                option.textContent = year;
-                yearSelect.appendChild(option);
-            }
-        }
-
-        function showContent() {
-            document.getElementById('mainContent').style.display = 'block';
-        }
-
-        function hideContent() {
-            document.getElementById('mainContent').style.display = 'none';
-        }
-
-        function addExpenseEntry(category, amount = '', description = '', entryId = null) {
-            if (!entryId) {
-                entryId = 'entry-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-            }
-
-            const container = document.getElementById(category + '-entries');
-            const entryDiv = document.createElement('div');
-            entryDiv.className = 'expense-entry';
-            entryDiv.id = entryId;
-            
-            entryDiv.innerHTML = `
-                <div class="expense-entry-header">
-                    <span style="font-weight: bold; color: #667eea;">הוצאה ${container.children.length + 1}</span>
-                    <button class="remove-btn" onclick="removeExpenseEntry('${category}', '${entryId}')">🗑️ מחק</button>
-                </div>
-                <div class="form-group">
-                    <label>סכום (₪)</label>
-                    <input type="number" class="expense-amount" data-category="${category}" value="${amount}" placeholder="הכנס סכום" onchange="updateCategoryTotal('${category}')">
-                </div>
-                <div class="form-group">
-                    <label>תיאור</label>
-                    <textarea class="expense-description" placeholder="תיאור ההוצאה">${description}</textarea>
-                </div>
-            `;
-            
-            container.appendChild(entryDiv);
-            updateCategoryTotal(category);
-        }
-
-        function removeExpenseEntry(category, entryId) {
-            const entry = document.getElementById(entryId);
-            if (entry) {
-                entry.remove();
-                updateCategoryTotal(category);
-                const container = document.getElementById(category + '-entries');
-                Array.from(container.children).forEach((child, index) => {
-                    const header = child.querySelector('.expense-entry-header span');
-                    if (header) {
-                        header.textContent = `הוצאה ${index + 1}`;
-                    }
-                });
-            }
-        }
-
-        function updateCategoryTotal(category) {
-            const container = document.getElementById(category + '-entries');
-            const amounts = container.querySelectorAll('.expense-amount');
-            let total = 0;
-            
-            amounts.forEach(input => {
-                total += parseFloat(input.value) || 0;
-            });
-            
-            const totalElement = document.getElementById(category + '-total');
-            if (totalElement) {
-                totalElement.textContent = `סה"כ: ₪${total.toLocaleString()}`;
-            }
-        }
-
-        function showTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            document.getElementById(tabName).classList.add('active');
-            event.target.classList.add('active');
-
-            if (tabName === 'dashboard') {
-                updateDashboard();
-            }
-        }
-
-        function updateMonthSelect() {
-            const select = document.getElementById('monthSelectDropdown');
-            select.innerHTML = '<option value="">-- בחר חודש קיים --</option>';
-            
-            Object.keys(data).sort().reverse().forEach(monthKey => {
-                const option = document.createElement('option');
-                option.value = monthKey;
-                const [year, month] = monthKey.split('-');
-                option.textContent = `${monthNames[month]} ${year}`;
-                select.appendChild(option);
-            });
-        }
-
-        function addNewMonth() {
-            const year = document.getElementById('yearSelect').value;
-            const month = document.getElementById('monthSelect').value;
-            
-            if (!year || !month) {
-                alert('אנא בחר שנה וחודש');
+            if (password !== confirmPassword) {
+                errorDiv.textContent = 'הסיסמאות אינן תואמות';
+                errorDiv.style.display = 'block';
                 return;
             }
-            
-            const newMonthKey = `${year}-${month}`;
-            
-            if (data[newMonthKey]) {
-                alert('חודש זה כבר קיים במערכת');
-                currentMonth = newMonthKey;
-                document.getElementById('monthSelectDropdown').value = newMonthKey;
-                loadMonthData();
-                showContent();
-                return;
+
+            try {
+                await auth.createUserWithEmailAndPassword(email, password);
+            } catch (error) {
+                errorDiv.textContent = getErrorMessage(error.code);
+                errorDiv.style.display = 'block';
             }
-            
-            currentMonth = newMonthKey;
-            data[currentMonth] = {
-                income: {},
-                expenses: {}
+        }
+
+        function handleLogout() {
+            auth.signOut();
+        }
+
+        function getErrorMessage(code) {
+            const errors = {
+                'auth/email-already-in-use': 'האימייל כבר בשימוש',
+                'auth/invalid-email': 'כתובת אימייל לא תקינה',
+                'auth/operation-not-allowed': 'פעולה לא מורשית',
+                'auth/weak-password': 'הסיסמה חלשה מדי (מינימום 6 תווים)',
+                'auth/user-disabled': 'המשתמש חסום',
+                'auth/user-not-found': 'משתמש לא קיים',
+                'auth/wrong-password': 'סיסמה שגויה'
             };
-            
-            saveDataToFirebase();
-            updateMonthSelect();
-            document.getElementById('monthSelectDropdown').value = newMonthKey;
-            document.getElementById('yearSelect').value = '';
-            document.getElementById('monthSelect').value = '';
-            
-            loadMonthData();
-            showContent();
-            alert(`חודש ${monthNames[month]} ${year} נוצר בהצלחה!`);
+            return errors[code] || 'אירעה שגיאה. נסה שוב.';
         }
 
-        function updateMonth() {
-            currentMonth = document.getElementById('monthSelectDropdown').value;
-            if (currentMonth) {
-                loadMonthData();
-                showContent();
+        // Auth state observer
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('authSection').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                document.getElementById('userEmail').textContent = user.email;
+                
+                initializeDropdowns();
+                await loadCreditCards();
+                loadDashboard();
+                loadIncome();
+                loadExpenses();
+                
+                // Apply saved theme
+                const savedTheme = localStorage.getItem('theme') || 'light';
+                document.documentElement.setAttribute('data-theme', savedTheme);
             } else {
-                clearForms();
-                hideContent();
+                currentUser = null;
+                document.getElementById('authSection').style.display = 'block';
+                document.getElementById('mainApp').style.display = 'none';
             }
+        });
+
+        // Theme toggle
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
         }
 
-        function loadMonthData() {
-            if (!currentMonth || !data[currentMonth]) return;
-
-            const monthData = data[currentMonth];
+        // Tab switching
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             
-            if (monthData.income) {
-                document.getElementById('income-balance').value = monthData.income.balance || '';
-                document.getElementById('income-balance-desc').value = monthData.income.balanceDesc || '';
-                document.getElementById('income-salary').value = monthData.income.salary || '';
-                document.getElementById('income-salary-desc').value = monthData.income.salaryDesc || '';
-                document.getElementById('income-other').value = monthData.income.other || '';
-                document.getElementById('income-other-desc').value = monthData.income.otherDesc || '';
-            }
-
-            expenseCategories.forEach(category => {
-                const container = document.getElementById(category + '-entries');
-                if (container) container.innerHTML = '';
-            });
-
-            if (monthData.expenses) {
-                expenseCategories.forEach(category => {
-                    if (monthData.expenses[category] && Array.isArray(monthData.expenses[category])) {
-                        monthData.expenses[category].forEach(entry => {
-                            addExpenseEntry(category, entry.amount, entry.description, entry.id);
-                        });
-                    }
-                });
-            }
-
-            expenseCategories.forEach(category => {
-                updateCategoryTotal(category);
-            });
+            event.target.classList.add('active');
+            document.getElementById(tab).classList.add('active');
         }
 
-        function clearForms() {
-            document.querySelectorAll('input[type="number"], textarea').forEach(input => {
-                input.value = '';
-            });
+        // Credit Card Management
+        async function loadCreditCards() {
+            if (!currentUser) return;
+
+            const doc = await db.collection('users').doc(currentUser.uid).get();
+            const userData = doc.data();
             
-            expenseCategories.forEach(category => {
-                const container = document.getElementById(category + '-entries');
-                if (container) container.innerHTML = '';
-                updateCategoryTotal(category);
+            if (userData && userData.creditCards) {
+                renderCardList(userData.creditCards);
+                updateExpensesCategories(userData.creditCards);
+            } else {
+                // Default cards
+                const defaultCards = ['כרטיס 1', 'כרטיס 2'];
+                await db.collection('users').doc(currentUser.uid).set({
+                    creditCards: defaultCards
+                }, { merge: true });
+                renderCardList(defaultCards);
+                updateExpensesCategories(defaultCards);
+            }
+        }
+
+        function renderCardList(cards) {
+            const cardList = document.getElementById('cardList');
+            cardList.innerHTML = '';
+            
+            cards.forEach((card, index) => {
+                const cardItem = document.createElement('div');
+                cardItem.className = 'card-item';
+                cardItem.innerHTML = `
+                    <span class="card-name">${card}</span>
+                    <div class="card-actions">
+                        <button class="card-btn edit-btn" onclick="editCard(${index})">✏️</button>
+                        <button class="card-btn delete-btn" onclick="deleteCard(${index})">🗑️</button>
+                    </div>
+                `;
+                cardList.appendChild(cardItem);
             });
         }
 
-        async function saveIncome() {
-            if (!currentMonth) {
-                alert('אנא בחר חודש תחילה');
+        async function addCard() {
+            const newCardName = document.getElementById('newCardName').value.trim();
+            if (!newCardName) {
+                alert('אנא הזן שם לכרטיס');
                 return;
             }
 
-            if (!data[currentMonth]) {
-                data[currentMonth] = { income: {}, expenses: {} };
-            }
+            const doc = await db.collection('users').doc(currentUser.uid).get();
+            const cards = doc.data()?.creditCards || [];
+            
+            cards.push(newCardName);
+            
+            await db.collection('users').doc(currentUser.uid).set({
+                creditCards: cards
+            }, { merge: true });
 
-            data[currentMonth].income = {
-                balance: parseFloat(document.getElementById('income-balance').value) || 0,
-                balanceDesc: document.getElementById('income-balance-desc').value,
-                salary: parseFloat(document.getElementById('income-salary').value) || 0,
-                salaryDesc: document.getElementById('income-salary-desc').value,
-                other: parseFloat(document.getElementById('income-other').value) || 0,
-                otherDesc: document.getElementById('income-other-desc').value
-            };
-
-            await saveDataToFirebase();
-            updateMonthSelect();
-            alert('הכנסות נשמרו בהצלחה!');
+            document.getElementById('newCardName').value = '';
+            
+            // Refresh all displays immediately
+            await loadCreditCards();
+            await loadExpenses();
+            await loadDashboard();
         }
 
-        async function saveExpenses() {
-            if (!currentMonth) {
-                alert('אנא בחר חודש תחילה');
+        function editCard(index) {
+            db.collection('users').doc(currentUser.uid).get().then(doc => {
+                const cards = doc.data()?.creditCards || [];
+                currentEditingCard = index;
+                document.getElementById('editCardName').value = cards[index];
+                document.getElementById('editCardModal').classList.add('active');
+            });
+        }
+
+        async function saveCardEdit() {
+            const newName = document.getElementById('editCardName').value.trim();
+            if (!newName) {
+                alert('אנא הזן שם לכרטיס');
                 return;
             }
 
-            if (!data[currentMonth]) {
-                data[currentMonth] = { income: {}, expenses: {} };
-            }
+            const doc = await db.collection('users').doc(currentUser.uid).get();
+            const cards = doc.data()?.creditCards || [];
+            
+            cards[currentEditingCard] = newName;
+            
+            await db.collection('users').doc(currentUser.uid).set({
+                creditCards: cards
+            }, { merge: true });
 
-            data[currentMonth].expenses = {};
-
-            expenseCategories.forEach(category => {
-                const container = document.getElementById(category + '-entries');
-                const entries = [];
-                
-                Array.from(container.children).forEach(entryDiv => {
-                    const amount = entryDiv.querySelector('.expense-amount').value;
-                    const description = entryDiv.querySelector('.expense-description').value;
-                    
-                    if (amount && parseFloat(amount) > 0) {
-                        entries.push({
-                            id: entryDiv.id,
-                            amount: parseFloat(amount),
-                            description: description
-                        });
-                    }
-                });
-                
-                if (entries.length > 0) {
-                    data[currentMonth].expenses[category] = entries;
-                }
-            });
-
-            await saveDataToFirebase();
-            updateMonthSelect();
-            alert('הוצאות נשמרו בהצלחה!');
+            closeEditCardModal();
+            
+            // Refresh all displays immediately
+            await loadCreditCards();
+            await loadExpenses();
+            await loadDashboard();
         }
 
-        let pieChart = null;
-        let barChart = null;
+        async function deleteCard(index) {
+            if (!confirm('האם אתה בטוח שברצונך למחוק כרטיס זה?')) return;
 
-        function updateDashboard() {
-            if (!currentMonth || !data[currentMonth]) {
-                alert('אין נתונים להצגה. אנא בחר חודש עם נתונים.');
-                return;
-            }
-
-            const monthData = data[currentMonth];
+            const doc = await db.collection('users').doc(currentUser.uid).get();
+            const cards = doc.data()?.creditCards || [];
             
-            const totalIncome = (monthData.income?.balance || 0) + 
-                               (monthData.income?.salary || 0) + 
-                               (monthData.income?.other || 0);
-
-            let totalExpenses = 0;
-            const expensesByCategory = {};
-
-            expenseCategories.forEach(category => {
-                let categoryTotal = 0;
-                if (monthData.expenses[category] && Array.isArray(monthData.expenses[category])) {
-                    monthData.expenses[category].forEach(entry => {
-                        categoryTotal += entry.amount || 0;
-                    });
-                }
-                if (categoryTotal > 0) {
-                    expensesByCategory[category] = categoryTotal;
-                    totalExpenses += categoryTotal;
-                }
-            });
+            cards.splice(index, 1);
             
+            await db.collection('users').doc(currentUser.uid).set({
+                creditCards: cards
+            }, { merge: true });
+
+            // Refresh all displays immediately
+            await loadCreditCards();
+            await loadExpenses();
+            await loadDashboard();
+        }
+
+        function closeEditCardModal() {
+            document.getElementById('editCardModal').classList.remove('active');
+            currentEditingCard = null;
+        }
+
+        function updateExpensesCategories(cards) {
+            categories.expenses.obligations = cards.map(card => ({
+                name: card,
+                subcategories: ['מזון מהיר', 'אופנה', 'קניות', 'בילויים', 'תשלום רכב', 'ביטוח', 'שירותים', 'אחר']
+            }));
+        }
+
+        // Load data functions
+        async function loadDashboard() {
+            const year = document.getElementById('dashboardYear').value;
+            const month = document.getElementById('dashboardMonth').value;
+            
+            const doc = await db.collection('users').doc(currentUser.uid)
+                .collection('data').doc(`${year}-${month}`).get();
+            
+            const data = doc.data() || { income: {}, expenses: {} };
+            
+            const totalIncome = calculateTotal(data.income);
+            const totalExpenses = calculateTotal(data.expenses);
             const balance = totalIncome - totalExpenses;
-
-            const summaryHTML = `
-                <div class="summary-card">
-                    <h4>סך הכנסות</h4>
-                    <div class="amount">₪${totalIncome.toLocaleString()}</div>
-                </div>
-                <div class="summary-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                    <h4>סך הוצאות</h4>
-                    <div class="amount">₪${totalExpenses.toLocaleString()}</div>
-                </div>
-                <div class="summary-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                    <h4>יתרה</h4>
-                    <div class="amount">₪${balance.toLocaleString()}</div>
-                </div>
-            `;
-            document.getElementById('summaryCards').innerHTML = summaryHTML;
-
-            const monthsHTML = Object.keys(data).sort().reverse().map(monthKey => {
-                const [year, month] = monthKey.split('-');
-                return `<div class="month-badge">${monthNames[month]} ${year}</div>`;
-            }).join('');
-            document.getElementById('monthsList').innerHTML = monthsHTML;
-
-            const expenseLabels = {
-                'amex-fastfood': 'מזון מהיר (אמקס)',
-                'amex-fashion': 'בגדים ואופנה (אמקס)',
-                'amex-regular': 'קניות רגילות (אמקס)',
-                'amex-entertainment': 'יציאות ובילויים (אמקס)',
-                'amex-car': 'תשלומי רכב (אמקס)',
-                'amex-insurance': 'ביטוחים (אמקס)',
-                'amex-subscriptions': 'שירותים ומינויים (אמקס)',
-                'amex-other': 'אחר (אמקס)',
-                'mastercard-fastfood': 'מזון מהיר (מאסטרקארד)',
-                'mastercard-fashion': 'בגדים ואופנה (מאסטרקארד)',
-                'mastercard-regular': 'קניות רגילות (מאסטרקארד)',
-                'mastercard-entertainment': 'יציאות ובילויים (מאסטרקארד)',
-                'mastercard-car': 'תשלומי רכב (מאסטרקארד)',
-                'mastercard-insurance': 'ביטוחים (מאסטרקארד)',
-                'mastercard-subscriptions': 'שירותים ומינויים (מאסטרקארד)',
-                'mastercard-other': 'אחר (מאסטרקארד)',
-                'assets-education': 'השכלה ומקצוע',
-                'assets-investments': 'השקעות שוק ההון',
-                'assets-savings': 'חסכונות יזומים',
-                'assets-equipment': 'ציוד ששומר על ערך',
-                'assets-gym': 'חדר כושר'
-            };
-
-            const pieData = [];
-            const pieLabels = [];
-            Object.keys(expensesByCategory).forEach(key => {
-                if (expensesByCategory[key] > 0) {
-                    pieLabels.push(expenseLabels[key] || key);
-                    pieData.push(expensesByCategory[key]);
-                }
-            });
-
-            if (pieChart) pieChart.destroy();
-            if (barChart) barChart.destroy();
-
-            const pieCtx = document.getElementById('pieChart').getContext('2d');
-            pieChart = new Chart(pieCtx, {
-                type: 'pie',
-                data: {
-                    labels: pieLabels,
-                    datasets: [{
-                        data: pieData,
-                        backgroundColor: [
-                            '#667eea', '#764ba2', '#f093fb', '#f5576c',
-                            '#4facfe', '#00f2fe', '#43e97b', '#38f9d7',
-                            '#fa709a', '#fee140', '#30cfd0', '#330867',
-                            '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4',
-                            '#ffeaa7', '#dfe6e9', '#74b9ff', '#a29bfe'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'right',
-                            rtl: true,
-                            labels: { font: { size: 12 } }
-                        }
-                    }
-                }
-            });
-
-            const barCtx = document.getElementById('barChart').getContext('2d');
-            barChart = new Chart(barCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['הכנסות', 'הוצאות'],
-                    datasets: [{
-                        label: 'סכום (₪)',
-                        data: [totalIncome, totalExpenses],
-                        backgroundColor: [
-                            'rgba(102, 126, 234, 0.8)',
-                            'rgba(245, 87, 108, 0.8)'
-                        ],
-                        borderColor: [
-                            'rgba(102, 126, 234, 1)',
-                            'rgba(245, 87, 108, 1)'
-                        ],
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: { y: { beginAtZero: true } },
-                    plugins: { legend: { display: false } }
-                }
-            });
-
-            let detailsHTML = '<h3 style="color: #667eea; margin: 20px 0;">פירוט הוצאות</h3>';
             
-            expenseCategories.forEach(category => {
-                if (monthData.expenses[category] && Array.isArray(monthData.expenses[category]) && monthData.expenses[category].length > 0) {
-                    const categoryLabel = expenseLabels[category] || category;
-                    const categoryTotal = expensesByCategory[category] || 0;
-                    
-                    detailsHTML += `
-                        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0;">
-                            <h4 style="color: #667eea; margin-bottom: 15px;">${categoryLabel} - סה"כ: ₪${categoryTotal.toLocaleString()}</h4>
-                    `;
-                    
-                    monthData.expenses[category].forEach((entry, index) => {
-                        detailsHTML += `
-                            <div class="expense-item" style="margin: 10px 0;">
-                                <div>
-                                    <strong>הוצאה ${index + 1}</strong>
-                                    ${entry.description ? `<p style="margin: 5px 0; color: #666;">${entry.description}</p>` : ''}
-                                </div>
-                                <span style="font-size: 1.2em; font-weight: bold;">₪${entry.amount.toLocaleString()}</span>
-                            </div>
-                        `;
-                    });
-                    
-                    detailsHTML += `</div>`;
-                }
-            });
-            
-            document.getElementById('expenseDetails').innerHTML = detailsHTML;
+            document.getElementById('totalIncome').textContent = `₪${totalIncome.toLocaleString()}`;
+            document.getElementById('totalExpenses').textContent = `₪${totalExpenses.toLocaleString()}`;
+            document.getElementById('balance').textContent = `₪${balance.toLocaleString()}`;
+
+            // Load card summary
+            await loadCardsSummary(data.expenses);
         }
 
-        // Initialize
-        initializeYearSelect();
+        async function loadCardsSummary(expensesData) {
+            const cardsSummaryGrid = document.getElementById('cardsSummaryGrid');
+            cardsSummaryGrid.innerHTML = '';
+
+            const doc = await db.collection('users').doc(currentUser.uid).get();
+            const cards = doc.data()?.creditCards || [];
+
+            const cardTotals = {};
+            cards.forEach(card => cardTotals[card] = 0);
+            cardTotals['העברה בנקאית'] = 0; // Add bank transfer
+
+            // Calculate totals per card
+            Object.values(expensesData || {}).forEach(category => {
+                Object.entries(category).forEach(([subcatName, entries]) => {
+                    entries.forEach(entry => {
+                        if (entry.card) {
+                            if (!cardTotals.hasOwnProperty(entry.card)) {
+                                cardTotals[entry.card] = 0;
+                            }
+                            cardTotals[entry.card] += parseFloat(entry.amount) || 0;
+                        }
+                    });
+                });
+            });
+
+            // Display credit cards summaries
+            cards.forEach(card => {
+                const cardItem = document.createElement('div');
+                cardItem.className = 'card-summary-item';
+                cardItem.innerHTML = `
+                    <h4>${card}</h4>
+                    <div class="card-amount">₪${cardTotals[card].toLocaleString()}</div>
+                `;
+                cardsSummaryGrid.appendChild(cardItem);
+            });
+
+            // Display bank transfer summary if there are any
+            if (cardTotals['העברה בנקאית'] > 0) {
+                const bankItem = document.createElement('div');
+                bankItem.className = 'card-summary-item bank-transfer';
+                bankItem.innerHTML = `
+                    <h4>העברה בנקאית</h4>
+                    <div class="card-amount">₪${cardTotals['העברה בנקאית'].toLocaleString()}</div>
+                `;
+                cardsSummaryGrid.appendChild(bankItem);
+            }
+        }
+
+        function calculateTotal(data) {
+            let total = 0;
+            Object.values(data || {}).forEach(category => {
+                Object.values(category).forEach(entries => {
+                    entries.forEach(entry => {
+                        total += parseFloat(entry.amount) || 0;
+                    });
+                });
+            });
+            return total;
+        }
+
+        async function loadIncome() {
+            const year = document.getElementById('incomeYear').value;
+            const month = document.getElementById('incomeMonth').value;
+            
+            const doc = await db.collection('users').doc(currentUser.uid)
+                .collection('data').doc(`${year}-${month}`).get();
+            
+            const data = doc.data()?.income || {};
+            
+            renderCategories('incomeCategories', categories.income, data, 'income', false);
+        }
+
+        async function loadExpenses() {
+            const year = document.getElementById('expensesYear').value;
+            const month = document.getElementById('expensesMonth').value;
+            
+            const doc = await db.collection('users').doc(currentUser.uid)
+                .collection('data').doc(`${year}-${month}`).get();
+            
+            const data = doc.data()?.expenses || {};
+            
+            const container = document.getElementById('expensesCategories');
+            container.innerHTML = '';
+            
+            // Obligations (credit cards - NO card selection needed)
+            const obligationsDiv = document.createElement('div');
+            obligationsDiv.innerHTML = '<h2 style="margin-bottom: 20px; color: var(--text-primary);">חובות</h2>';
+            renderCategories(obligationsDiv, categories.expenses.obligations, data, 'expenses', false);
+            container.appendChild(obligationsDiv);
+            
+            // Assets (need card selection or bank transfer)
+            const assetsDiv = document.createElement('div');
+            assetsDiv.innerHTML = '<h2 style="margin: 40px 0 20px; color: var(--text-primary);">נכסים</h2>';
+            renderCategories(assetsDiv, categories.expenses.assets, data, 'expenses', true);
+            container.appendChild(assetsDiv);
+        }
+
+        function renderCategories(containerId, cats, data, type, showCards) {
+            const container = typeof containerId === 'string' ? 
+                document.getElementById(containerId) : containerId;
+            
+            if (typeof containerId === 'string') {
+                container.innerHTML = '';
+            }
+            
+            cats.forEach(cat => {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'category';
+                
+                const headerDiv = document.createElement('div');
+                headerDiv.className = 'category-header';
+                headerDiv.innerHTML = `
+                    <h3>
+                        <span class="collapse-icon">▼</span>
+                        ${cat.name}
+                    </h3>
+                `;
+                headerDiv.onclick = (e) => toggleCategory(e.currentTarget);
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'category-content';
+                
+                cat.subcategories.forEach(subcat => {
+                    const subcatDiv = document.createElement('div');
+                    subcatDiv.className = 'subcategory';
+                    subcatDiv.innerHTML = `<h4>${subcat}</h4>`;
+                    
+                    const entries = data[cat.name]?.[subcat] || [{ description: '', amount: '', card: '' }];
+                    
+                    entries.forEach((entry, index) => {
+                        const entryRow = createEntryRow(entry, type, cat.name, subcat, index, showCards);
+                        subcatDiv.appendChild(entryRow);
+                    });
+                    
+                    const addBtn = document.createElement('button');
+                    addBtn.className = 'add-entry';
+                    addBtn.textContent = '+ הוסף רשומה';
+                    addBtn.onclick = () => addEntry(type, cat.name, subcat, showCards);
+                    subcatDiv.appendChild(addBtn);
+                    
+                    contentDiv.appendChild(subcatDiv);
+                });
+                
+                categoryDiv.appendChild(headerDiv);
+                categoryDiv.appendChild(contentDiv);
+                container.appendChild(categoryDiv);
+            });
+        }
+
+        function toggleCategory(header) {
+            header.classList.toggle('collapsed');
+            header.nextElementSibling.classList.toggle('collapsed');
+        }
+
+        function createEntryRow(entry, type, catName, subcatName, index, showCards) {
+            const row = document.createElement('div');
+            row.className = 'entry-row';
+            
+            let cardSelectHTML = '';
+            if (showCards) {
+                cardSelectHTML = `
+                    <select class="entry-card-select" 
+                            onchange="saveData('${type}', '${catName}', '${subcatName}', ${index}, this.parentElement)">
+                        <option value="">בחר אמצעי תשלום</option>
+                        <option value="העברה בנקאית" ${entry.card === 'העברה בנקאית' ? 'selected' : ''}>העברה בנקאית</option>
+                        ${categories.expenses.obligations.map(card => 
+                            `<option value="${card.name}" ${entry.card === card.name ? 'selected' : ''}>${card.name}</option>`
+                        ).join('')}
+                    </select>
+                `;
+            }
+            
+            row.innerHTML = `
+                <input type="text" class="entry-description" placeholder="תיאור" value="${entry.description || ''}"
+                       onchange="saveData('${type}', '${catName}', '${subcatName}', ${index}, this.parentElement)">
+                <input type="number" class="entry-amount" placeholder="סכום" value="${entry.amount || ''}"
+                       onchange="saveData('${type}', '${catName}', '${subcatName}', ${index}, this.parentElement)">
+                ${cardSelectHTML}
+                <button class="remove-entry" onclick="removeEntry('${type}', '${catName}', '${subcatName}', ${index})">🗑️</button>
+            `;
+            
+            return row;
+        }
+
+        async function addEntry(type, catName, subcatName, showCards) {
+            const year = document.getElementById(`${type === 'income' ? 'income' : 'expenses'}Year`).value;
+            const month = document.getElementById(`${type === 'income' ? 'income' : 'expenses'}Month`).value;
+            
+            const docRef = db.collection('users').doc(currentUser.uid)
+                .collection('data').doc(`${year}-${month}`);
+            
+            const doc = await docRef.get();
+            const data = doc.data() || {};
+            
+            if (!data[type]) data[type] = {};
+            if (!data[type][catName]) data[type][catName] = {};
+            if (!data[type][catName][subcatName]) data[type][catName][subcatName] = [];
+            
+            data[type][catName][subcatName].push({ description: '', amount: '', card: '' });
+            
+            await docRef.set(data);
+            
+            if (type === 'income') {
+                loadIncome();
+            } else {
+                loadExpenses();
+            }
+            loadDashboard();
+        }
+
+        async function removeEntry(type, catName, subcatName, index) {
+            const year = document.getElementById(`${type === 'income' ? 'income' : 'expenses'}Year`).value;
+            const month = document.getElementById(`${type === 'income' ? 'income' : 'expenses'}Month`).value;
+            
+            const docRef = db.collection('users').doc(currentUser.uid)
+                .collection('data').doc(`${year}-${month}`);
+            
+            const doc = await docRef.get();
+            const data = doc.data();
+            
+            if (data[type][catName][subcatName].length > 1) {
+                data[type][catName][subcatName].splice(index, 1);
+            } else {
+                data[type][catName][subcatName] = [{ description: '', amount: '', card: '' }];
+            }
+            
+            await docRef.set(data);
+            
+            if (type === 'income') {
+                loadIncome();
+            } else {
+                loadExpenses();
+            }
+            loadDashboard();
+        }
+
+        async function saveData(type, catName, subcatName, index, row) {
+            const description = row.querySelector('.entry-description').value;
+            const amount = row.querySelector('.entry-amount').value;
+            const cardSelect = row.querySelector('.entry-card-select');
+            const card = cardSelect ? cardSelect.value : '';
+            
+            const year = document.getElementById(`${type === 'income' ? 'income' : 'expenses'}Year`).value;
+            const month = document.getElementById(`${type === 'income' ? 'income' : 'expenses'}Month`).value;
+            
+            const docRef = db.collection('users').doc(currentUser.uid)
+                .collection('data').doc(`${year}-${month}`);
+            
+            const doc = await docRef.get();
+            const data = doc.data() || {};
+            
+            if (!data[type]) data[type] = {};
+            if (!data[type][catName]) data[type][catName] = {};
+            if (!data[type][catName][subcatName]) data[type][catName][subcatName] = [];
+            
+            data[type][catName][subcatName][index] = { description, amount, card };
+            
+            await docRef.set(data);
+            loadDashboard();
+        }
+
+        // Scroll to top button
+        window.addEventListener('scroll', () => {
+            const scrollBtn = document.querySelector('.scroll-top');
+            if (window.pageYOffset > 300) {
+                scrollBtn.classList.add('visible');
+            } else {
+                scrollBtn.classList.remove('visible');
+            }
+        });
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Close modal on outside click
+        window.onclick = function(event) {
+            const modal = document.getElementById('editCardModal');
+            if (event.target === modal) {
+                closeEditCardModal();
+            }
+        }
     </script>
 </body>
 </html>
