@@ -41,7 +41,7 @@
             color: var(--text-primary);
             padding: 20px;
             min-height: 100vh;
-            transition: background 0.3s, color 0.3s;
+            transition: background 0.5s ease, color 0.5s ease;
         }
 
         .container {
@@ -51,7 +51,7 @@
             border-radius: 15px;
             box-shadow: var(--card-shadow);
             padding: 30px;
-            transition: background 0.3s;
+            transition: background 0.5s ease, box-shadow 0.5s ease;
         }
 
         /* Auth Styles */
@@ -62,6 +62,43 @@
             padding: 40px;
             border-radius: 15px;
             box-shadow: var(--card-shadow);
+            transition: background 0.5s ease, box-shadow 0.5s ease;
+            position: relative;
+        }
+
+        .auth-theme-toggle {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 50px;
+            height: 26px;
+            background: var(--border-color);
+            border-radius: 13px;
+            cursor: pointer;
+            transition: background 0.5s ease;
+            z-index: 10;
+        }
+
+        .auth-theme-toggle::before {
+            content: '🌙';
+            position: absolute;
+            left: 2px;
+            top: 2px;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        [data-theme="dark"] .auth-theme-toggle::before {
+            content: '☀️';
+            transform: translateX(24px);
         }
 
         .auth-tabs {
@@ -69,6 +106,7 @@
             gap: 10px;
             margin-bottom: 30px;
             border-bottom: 2px solid var(--border-color);
+            transition: border-color 0.5s ease;
         }
 
         .auth-tab {
@@ -80,7 +118,7 @@
             font-size: 16px;
             font-weight: 500;
             color: var(--text-secondary);
-            transition: all 0.3s;
+            transition: all 0.5s ease;
             border-bottom: 3px solid transparent;
         }
 
@@ -116,12 +154,13 @@
             font-size: 16px;
             background: var(--bg-secondary);
             color: var(--text-primary);
-            transition: border-color 0.3s;
+            transition: all 0.5s ease;
         }
 
         .form-group input:focus {
             outline: none;
             border-color: var(--button-primary);
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
         }
 
         .auth-button {
@@ -134,11 +173,18 @@
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.5s ease;
+            box-shadow: 0 4px 6px rgba(33, 150, 243, 0.3);
         }
 
         .auth-button:hover {
             background: var(--button-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(33, 150, 243, 0.4);
+        }
+
+        .auth-button:active {
+            transform: translateY(0);
         }
 
         .auth-button:disabled {
@@ -184,7 +230,8 @@
             border-radius: 13px;
             position: relative;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: background 0.5s ease;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .theme-toggle::before {
@@ -196,11 +243,16 @@
             height: 22px;
             background: white;
             border-radius: 50%;
-            transition: transform 0.3s;
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 14px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        [data-theme="dark"] .theme-toggle {
+            background: var(--button-primary);
         }
 
         [data-theme="dark"] .theme-toggle::before {
@@ -250,6 +302,11 @@
             animation: pulse 2s infinite;
         }
 
+        .status-dot.saving {
+            background: #FFC107;
+            animation: pulse 0.5s infinite;
+        }
+
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
@@ -272,13 +329,14 @@
             font-size: 16px;
             font-weight: 500;
             color: var(--text-secondary);
-            transition: all 0.3s;
+            transition: all 0.5s ease;
             border-bottom: 3px solid transparent;
             white-space: nowrap;
         }
 
         .tab:hover {
             color: var(--text-primary);
+            transform: translateY(-2px);
         }
 
         .tab.active {
@@ -288,10 +346,22 @@
 
         .tab-content {
             display: none;
+            animation: fadeIn 0.5s ease-in;
         }
 
         .tab-content.active {
             display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* Date Selection */
@@ -310,16 +380,18 @@
             cursor: pointer;
             background: var(--bg-secondary);
             color: var(--text-primary);
-            transition: all 0.3s;
+            transition: all 0.5s ease;
         }
 
         select:hover {
             border-color: var(--button-primary);
+            box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);
         }
 
         select:focus {
             outline: none;
             border-color: var(--button-primary);
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
         }
 
         /* Card Management Section */
@@ -423,6 +495,7 @@
             border-radius: 10px;
             margin-bottom: 20px;
             box-shadow: var(--card-shadow);
+            transition: all 0.5s ease;
         }
 
         .category-header {
@@ -435,11 +508,18 @@
             background: var(--bg-tertiary);
             border-radius: 8px;
             margin-bottom: 15px;
-            transition: background 0.3s;
+            transition: all 0.5s ease;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .category-header:focus {
+            outline: none;
         }
 
         .category-header:hover {
             background: var(--border-color);
+            transform: translateX(-3px);
         }
 
         .category-header h3 {
@@ -447,10 +527,28 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            flex: 1;
+        }
+
+        .card-total {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--expense-color);
+            margin-right: auto;
+        }
+
+        .category-header.bank-transfer-category {
+            background: linear-gradient(135deg, var(--bg-tertiary) 0%, #e8f5e9 100%);
+            border-left: 4px solid #4CAF50;
+        }
+
+        [data-theme="dark"] .category-header.bank-transfer-category {
+            background: linear-gradient(135deg, var(--bg-tertiary) 0%, #1b5e20 100%);
         }
 
         .collapse-icon {
-            transition: transform 0.3s;
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            display: inline-block;
         }
 
         .category-header.collapsed .collapse-icon {
@@ -460,11 +558,13 @@
         .category-content {
             max-height: 5000px;
             overflow: hidden;
-            transition: max-height 0.3s ease-out;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease;
+            opacity: 1;
         }
 
         .category-content.collapsed {
             max-height: 0;
+            opacity: 0;
         }
 
         .subcategory {
@@ -494,6 +594,18 @@
             font-size: 14px;
             background: var(--bg-secondary);
             color: var(--text-primary);
+            transition: all 0.5s ease;
+        }
+
+        .entry-row input:focus {
+            outline: none;
+            border-color: var(--button-primary);
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .entry-row input:hover {
+            border-color: var(--button-primary);
         }
 
         .entry-description {
@@ -532,11 +644,18 @@
             cursor: pointer;
             font-size: 14px;
             margin-top: 10px;
-            transition: opacity 0.3s;
+            transition: all 0.5s ease;
+            box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
         }
 
         .add-entry:hover {
-            opacity: 0.8;
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(76, 175, 80, 0.4);
+        }
+
+        .add-entry:active {
+            transform: translateY(0);
         }
 
         /* Summary */
@@ -552,6 +671,12 @@
             padding: 25px;
             border-radius: 12px;
             box-shadow: var(--card-shadow);
+            transition: all 0.5s ease;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
         }
 
         .summary-card h3 {
@@ -565,6 +690,11 @@
             font-size: 28px;
             font-weight: bold;
             margin-bottom: 5px;
+            transition: all 0.5s ease;
+        }
+
+        .summary-card:hover .amount {
+            transform: scale(1.05);
         }
 
         .summary-card.income .amount {
@@ -600,27 +730,114 @@
             padding: 15px;
             border-radius: 8px;
             box-shadow: var(--card-shadow);
+            transition: all 0.5s ease;
+        }
+
+        .card-summary-item:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
         }
 
         .card-summary-item h4 {
             color: var(--text-secondary);
             font-size: 14px;
             margin-bottom: 8px;
+            transition: color 0.5s ease;
         }
 
         .card-summary-item .card-amount {
             font-size: 22px;
             font-weight: bold;
             color: var(--expense-color);
+            transition: all 0.5s ease;
+        }
+
+        .card-summary-item:hover .card-amount {
+            transform: scale(1.1);
         }
 
         .card-summary-item.bank-transfer {
             background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            transition: all 0.5s ease;
+        }
+
+        .card-summary-item.bank-transfer:hover {
+            background: linear-gradient(135deg, #45a049 0%, #388e3c 100%);
         }
 
         .card-summary-item.bank-transfer h4,
         .card-summary-item.bank-transfer .card-amount {
             color: white;
+        }
+
+        /* Transactions Breakdown */
+        .transactions-breakdown {
+            margin-top: 40px;
+        }
+
+        .transactions-breakdown h3 {
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        .card-transactions {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .card-transactions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .card-transactions-header h4 {
+            color: var(--text-primary);
+            font-size: 18px;
+        }
+
+        .card-transactions-header .total {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--expense-color);
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: var(--bg-primary);
+            border-radius: 5px;
+            margin-bottom: 8px;
+        }
+
+        .transaction-details {
+            flex: 1;
+        }
+
+        .transaction-category {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 3px;
+        }
+
+        .transaction-description {
+            font-size: 14px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .transaction-amount {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--expense-color);
         }
 
         /* Scroll to Top Button */
@@ -639,18 +856,36 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             opacity: 0;
             visibility: hidden;
-            transition: all 0.3s;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             z-index: 1000;
         }
 
         .scroll-top.visible {
             opacity: 1;
             visibility: visible;
+            animation: bounceIn 0.6s ease;
+        }
+
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0) translateY(50px);
+            }
+            50% {
+                transform: scale(1.1) translateY(0);
+            }
+            100% {
+                transform: scale(1) translateY(0);
+            }
         }
 
         .scroll-top:hover {
             background: var(--button-hover);
-            transform: translateY(-3px);
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+        }
+
+        .scroll-top:active {
+            transform: translateY(-3px) scale(1.05);
         }
 
         /* Modal */
@@ -665,10 +900,23 @@
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
         .modal.active {
             display: flex;
+            opacity: 1;
+            animation: fadeInModal 0.3s ease;
+        }
+
+        @keyframes fadeInModal {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
         }
 
         .modal-content {
@@ -678,6 +926,19 @@
             max-width: 400px;
             width: 90%;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: all 0.5s ease;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         .modal-header {
@@ -721,7 +982,17 @@
             border-radius: 8px;
             cursor: pointer;
             font-weight: 500;
-            transition: opacity 0.3s;
+            transition: all 0.5s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .modal-btn:active {
+            transform: translateY(0);
         }
 
         .modal-btn.primary {
@@ -729,13 +1000,17 @@
             color: white;
         }
 
+        .modal-btn.primary:hover {
+            background: var(--button-hover);
+        }
+
         .modal-btn.secondary {
             background: var(--border-color);
             color: var(--text-primary);
         }
 
-        .modal-btn:hover {
-            opacity: 0.8;
+        .modal-btn.secondary:hover {
+            background: var(--bg-tertiary);
         }
 
         /* Responsive */
@@ -781,6 +1056,8 @@
 <body>
     <!-- Auth Section -->
     <div id="authSection">
+        <div class="auth-theme-toggle" onclick="toggleTheme()"></div>
+        
         <h1 style="text-align: center; margin-bottom: 30px; color: var(--text-primary);">מערכת ניהול פיננסי</h1>
         
         <div class="auth-tabs">
@@ -846,8 +1123,8 @@
             <!-- Dashboard Tab -->
             <div id="dashboard" class="tab-content active">
                 <div class="date-selection">
-                    <select id="dashboardYear" onchange="loadDashboard()"></select>
-                    <select id="dashboardMonth" onchange="loadDashboard()"></select>
+                    <select id="dashboardYear"></select>
+                    <select id="dashboardMonth"></select>
                 </div>
 
                 <div class="summary">
@@ -869,13 +1146,18 @@
                     <h3>סיכום לפי כרטיסי אשראי</h3>
                     <div class="cards-grid" id="cardsSummaryGrid"></div>
                 </div>
+
+                <div class="transactions-breakdown">
+                    <h3>פירוט עסקאות אשראי</h3>
+                    <div id="transactionsBreakdown"></div>
+                </div>
             </div>
 
             <!-- Income Tab -->
             <div id="income" class="tab-content">
                 <div class="date-selection">
-                    <select id="incomeYear" onchange="loadIncome()"></select>
-                    <select id="incomeMonth" onchange="loadIncome()"></select>
+                    <select id="incomeYear"></select>
+                    <select id="incomeMonth"></select>
                 </div>
 
                 <div id="incomeCategories"></div>
@@ -884,8 +1166,8 @@
             <!-- Expenses Tab -->
             <div id="expenses" class="tab-content">
                 <div class="date-selection">
-                    <select id="expensesYear" onchange="loadExpenses()"></select>
-                    <select id="expensesMonth" onchange="loadExpenses()"></select>
+                    <select id="expensesYear"></select>
+                    <select id="expensesMonth"></select>
                 </div>
 
                 <!-- Card Management Section -->
@@ -946,6 +1228,32 @@
 
         let currentUser = null;
         let currentEditingCard = null;
+        let collapsedCategories = {}; // Track which categories are collapsed
+
+        // Load saved theme immediately
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+
+        // Status indicator functions
+        function setSavingStatus() {
+            const statusDot = document.querySelector('.status-dot');
+            const statusText = document.querySelector('.status-indicator span:last-child');
+            if (statusDot && statusText) {
+                statusDot.classList.add('saving');
+                statusText.textContent = 'שומר...';
+            }
+        }
+
+        function setSyncedStatus() {
+            const statusDot = document.querySelector('.status-dot');
+            const statusText = document.querySelector('.status-indicator span:last-child');
+            if (statusDot && statusText) {
+                statusDot.classList.remove('saving');
+                statusText.textContent = 'מסונכרן';
+            }
+        }
 
         // Hebrew months
         const hebrewMonths = [
@@ -963,7 +1271,8 @@
             expenses: {
                 obligations: [
                     { name: 'כרטיס אשראי 1', subcategories: ['מזון מהיר', 'אופנה', 'קניות', 'בילויים', 'תשלום רכב', 'ביטוח', 'שירותים', 'אחר'] },
-                    { name: 'כרטיס אשראי 2', subcategories: ['מזון מהיר', 'אופנה', 'קניות', 'בילויים', 'תשלום רכב', 'ביטוח', 'שירותים', 'אחר'] }
+                    { name: 'כרטיס אשראי 2', subcategories: ['מזון מהיר', 'אופנה', 'קניות', 'בילויים', 'תשלום רכב', 'ביטוח', 'שירותים', 'אחר'] },
+                    { name: 'העברה בנקאית', subcategories: ['העברה בנקאית'] }
                 ],
                 assets: [
                     { name: 'השכלה', subcategories: ['לימודים'] },
@@ -1003,6 +1312,27 @@
                     option.textContent = month;
                     if (index === currentMonth) option.selected = true;
                     monthSelect.appendChild(option);
+                });
+                
+                // Add change handlers to clear collapsed state
+                yearSelect.addEventListener('change', () => {
+                    if (prefix === 'expenses') {
+                        loadExpenses(false);
+                    } else if (prefix === 'income') {
+                        loadIncome();
+                    } else {
+                        loadDashboard();
+                    }
+                });
+                
+                monthSelect.addEventListener('change', () => {
+                    if (prefix === 'expenses') {
+                        loadExpenses(false);
+                    } else if (prefix === 'income') {
+                        loadIncome();
+                    } else {
+                        loadDashboard();
+                    }
                 });
             });
         }
@@ -1234,10 +1564,13 @@
         }
 
         function updateExpensesCategories(cards) {
-            categories.expenses.obligations = cards.map(card => ({
-                name: card,
-                subcategories: ['מזון מהיר', 'אופנה', 'קניות', 'בילויים', 'תשלום רכב', 'ביטוח', 'שירותים', 'אחר']
-            }));
+            categories.expenses.obligations = [
+                ...cards.map(card => ({
+                    name: card,
+                    subcategories: ['מזון מהיר', 'אופנה', 'קניות', 'בילויים', 'תשלום רכב', 'ביטוח', 'שירותים', 'אחר']
+                })),
+                { name: 'העברה בנקאית', subcategories: ['העברה בנקאית'] }
+            ];
         }
 
         // Load data functions
@@ -1260,6 +1593,96 @@
 
             // Load card summary
             await loadCardsSummary(data.expenses);
+            
+            // Load transactions breakdown
+            await loadTransactionsBreakdown(data.expenses);
+        }
+
+        async function loadTransactionsBreakdown(expensesData) {
+            const breakdownContainer = document.getElementById('transactionsBreakdown');
+            breakdownContainer.innerHTML = '';
+
+            const doc = await db.collection('users').doc(currentUser.uid).get();
+            const cards = doc.data()?.creditCards || [];
+
+            // Collect all transactions per card
+            const cardTransactions = {};
+            cards.forEach(card => cardTransactions[card] = []);
+            cardTransactions['העברה בנקאית'] = [];
+
+            // Go through all expenses and collect transactions
+            Object.entries(expensesData || {}).forEach(([categoryName, category]) => {
+                Object.entries(category).forEach(([subcatName, entries]) => {
+                    entries.forEach(entry => {
+                        if (entry.amount && parseFloat(entry.amount) > 0) {
+                            const transaction = {
+                                category: categoryName,
+                                subcategory: subcatName,
+                                description: entry.description || subcatName,
+                                amount: parseFloat(entry.amount)
+                            };
+                            
+                            // Check if this category IS "העברה בנקאית" (from obligations)
+                            if (categoryName === 'העברה בנקאית') {
+                                cardTransactions['העברה בנקאית'].push(transaction);
+                            }
+                            // Check if this category IS a credit card (from obligations)
+                            else if (cards.includes(categoryName)) {
+                                cardTransactions[categoryName].push(transaction);
+                            }
+                            // Or if the transaction has a card selected (from assets)
+                            else if (entry.card) {
+                                if (!cardTransactions[entry.card]) {
+                                    cardTransactions[entry.card] = [];
+                                }
+                                cardTransactions[entry.card].push(transaction);
+                            }
+                        }
+                    });
+                });
+            });
+
+            // Display transactions for each card
+            [...cards, 'העברה בנקאית'].forEach(card => {
+                const transactions = cardTransactions[card];
+                if (transactions && transactions.length > 0) {
+                    const total = transactions.reduce((sum, t) => sum + t.amount, 0);
+                    
+                    const cardDiv = document.createElement('div');
+                    cardDiv.className = 'card-transactions';
+                    
+                    // Add special styling for bank transfer
+                    if (card === 'העברה בנקאית') {
+                        cardDiv.style.borderLeft = '4px solid #4CAF50';
+                    }
+                    
+                    // Add icon for bank transfer
+                    const cardIcon = card === 'העברה בנקאית' ? '🏦 ' : '';
+                    
+                    const headerDiv = document.createElement('div');
+                    headerDiv.className = 'card-transactions-header';
+                    headerDiv.innerHTML = `
+                        <h4>${cardIcon}${card}</h4>
+                        <span class="total">₪${total.toLocaleString()}</span>
+                    `;
+                    cardDiv.appendChild(headerDiv);
+                    
+                    transactions.forEach(transaction => {
+                        const itemDiv = document.createElement('div');
+                        itemDiv.className = 'transaction-item';
+                        itemDiv.innerHTML = `
+                            <div class="transaction-details">
+                                <div class="transaction-category">${transaction.category} • ${transaction.subcategory}</div>
+                                <div class="transaction-description">${transaction.description}</div>
+                            </div>
+                            <div class="transaction-amount">₪${transaction.amount.toLocaleString()}</div>
+                        `;
+                        cardDiv.appendChild(itemDiv);
+                    });
+                    
+                    breakdownContainer.appendChild(cardDiv);
+                }
+            });
         }
 
         async function loadCardsSummary(expensesData) {
@@ -1274,14 +1697,27 @@
             cardTotals['העברה בנקאית'] = 0; // Add bank transfer
 
             // Calculate totals per card
-            Object.values(expensesData || {}).forEach(category => {
+            Object.entries(expensesData || {}).forEach(([categoryName, category]) => {
                 Object.entries(category).forEach(([subcatName, entries]) => {
                     entries.forEach(entry => {
-                        if (entry.card) {
-                            if (!cardTotals.hasOwnProperty(entry.card)) {
-                                cardTotals[entry.card] = 0;
+                        const amount = parseFloat(entry.amount) || 0;
+                        if (amount > 0) {
+                            // Check if this category IS a credit card (from obligations)
+                            // BUT exclude "העברה בנקאית" from obligations
+                            if (cards.includes(categoryName) && categoryName !== 'העברה בנקאית') {
+                                cardTotals[categoryName] += amount;
                             }
-                            cardTotals[entry.card] += parseFloat(entry.amount) || 0;
+                            // Check if category IS "העברה בנקאית" from obligations
+                            else if (categoryName === 'העברה בנקאית') {
+                                cardTotals['העברה בנקאית'] += amount;
+                            }
+                            // Or if the transaction has a card selected (from assets)
+                            else if (entry.card) {
+                                if (!cardTotals.hasOwnProperty(entry.card)) {
+                                    cardTotals[entry.card] = 0;
+                                }
+                                cardTotals[entry.card] += amount;
+                            }
                         }
                     });
                 });
@@ -1303,7 +1739,7 @@
                 const bankItem = document.createElement('div');
                 bankItem.className = 'card-summary-item bank-transfer';
                 bankItem.innerHTML = `
-                    <h4>העברה בנקאית</h4>
+                    <h4>🏦 העברה בנקאית</h4>
                     <div class="card-amount">₪${cardTotals['העברה בנקאית'].toLocaleString()}</div>
                 `;
                 cardsSummaryGrid.appendChild(bankItem);
@@ -1326,17 +1762,25 @@
             const year = document.getElementById('incomeYear').value;
             const month = document.getElementById('incomeMonth').value;
             
+            // Clear collapsed state when changing date
+            collapsedCategories = {};
+            
             const doc = await db.collection('users').doc(currentUser.uid)
                 .collection('data').doc(`${year}-${month}`).get();
             
             const data = doc.data()?.income || {};
             
-            renderCategories('incomeCategories', categories.income, data, 'income', false);
+            renderCategories('incomeCategories', categories.income, data, 'income', false, null);
         }
 
-        async function loadExpenses() {
+        async function loadExpenses(preserveState = true) {
             const year = document.getElementById('expensesYear').value;
             const month = document.getElementById('expensesMonth').value;
+            
+            // Clear collapsed state only when changing date (not when just updating data)
+            if (!preserveState) {
+                collapsedCategories = {};
+            }
             
             const doc = await db.collection('users').doc(currentUser.uid)
                 .collection('data').doc(`${year}-${month}`).get();
@@ -1349,17 +1793,17 @@
             // Obligations (credit cards - NO card selection needed)
             const obligationsDiv = document.createElement('div');
             obligationsDiv.innerHTML = '<h2 style="margin-bottom: 20px; color: var(--text-primary);">חובות</h2>';
-            renderCategories(obligationsDiv, categories.expenses.obligations, data, 'expenses', false);
+            renderCategories(obligationsDiv, categories.expenses.obligations, data, 'expenses', false, data);
             container.appendChild(obligationsDiv);
             
             // Assets (need card selection or bank transfer)
             const assetsDiv = document.createElement('div');
             assetsDiv.innerHTML = '<h2 style="margin: 40px 0 20px; color: var(--text-primary);">נכסים</h2>';
-            renderCategories(assetsDiv, categories.expenses.assets, data, 'expenses', true);
+            renderCategories(assetsDiv, categories.expenses.assets, data, 'expenses', true, data);
             container.appendChild(assetsDiv);
         }
 
-        function renderCategories(containerId, cats, data, type, showCards) {
+        function renderCategories(containerId, cats, data, type, showCards, allExpensesData) {
             const container = typeof containerId === 'string' ? 
                 document.getElementById(containerId) : containerId;
             
@@ -1371,18 +1815,71 @@
                 const categoryDiv = document.createElement('div');
                 categoryDiv.className = 'category';
                 
+                // Create unique key for this category
+                const categoryKey = `${type}-${cat.name}`;
+                
+                // Calculate total for this card (from obligations + assets)
+                let cardTotal = 0;
+                // Only calculate for credit cards, not for bank transfer
+                if (allExpensesData && cat.name && cat.name !== 'העברה בנקאית') {
+                    // Calculate from current category (obligations)
+                    Object.values(data[cat.name] || {}).forEach(entries => {
+                        entries.forEach(entry => {
+                            cardTotal += parseFloat(entry.amount) || 0;
+                        });
+                    });
+                    
+                    // Add expenses from assets that are linked to this card
+                    Object.entries(allExpensesData).forEach(([categoryName, category]) => {
+                        Object.entries(category).forEach(([subcatName, entries]) => {
+                            entries.forEach(entry => {
+                                if (entry.card === cat.name) {
+                                    cardTotal += parseFloat(entry.amount) || 0;
+                                }
+                            });
+                        });
+                    });
+                }
+                
                 const headerDiv = document.createElement('div');
                 headerDiv.className = 'category-header';
+                headerDiv.tabIndex = -1; // Prevent keyboard navigation to this element
+                
+                // Add special styling for bank transfer
+                if (cat.name === 'העברה בנקאית') {
+                    headerDiv.classList.add('bank-transfer-category');
+                }
+                
+                // Restore collapsed state if it was collapsed before
+                if (collapsedCategories[categoryKey]) {
+                    headerDiv.classList.add('collapsed');
+                }
+                
+                let totalDisplay = '';
+                // Show total only for credit cards, not for bank transfer
+                if (cardTotal > 0 && type === 'expenses' && !showCards && cat.name !== 'העברה בנקאית') {
+                    totalDisplay = `<span class="card-total">₪${cardTotal.toLocaleString()}</span>`;
+                }
+                
+                // Add icon for bank transfer
+                const categoryIcon = cat.name === 'העברה בנקאית' ? '🏦 ' : '';
+                
                 headerDiv.innerHTML = `
                     <h3>
                         <span class="collapse-icon">▼</span>
-                        ${cat.name}
+                        ${categoryIcon}${cat.name}
                     </h3>
+                    ${totalDisplay}
                 `;
-                headerDiv.onclick = (e) => toggleCategory(e.currentTarget);
+                headerDiv.onclick = (e) => handleCategoryClick(e, headerDiv, categoryKey);
                 
                 const contentDiv = document.createElement('div');
                 contentDiv.className = 'category-content';
+                
+                // Restore collapsed state for content as well
+                if (collapsedCategories[categoryKey]) {
+                    contentDiv.classList.add('collapsed');
+                }
                 
                 cat.subcategories.forEach(subcat => {
                     const subcatDiv = document.createElement('div');
@@ -1411,9 +1908,24 @@
             });
         }
 
-        function toggleCategory(header) {
+        function toggleCategory(header, categoryKey) {
             header.classList.toggle('collapsed');
             header.nextElementSibling.classList.toggle('collapsed');
+            
+            // Save the state
+            if (categoryKey) {
+                collapsedCategories[categoryKey] = header.classList.contains('collapsed');
+            }
+        }
+
+        function handleCategoryClick(event, header, categoryKey) {
+            // Only toggle if it's an actual click (not Tab/Enter key)
+            if (event.type === 'click' && event.target.closest('.category-header')) {
+                // Prevent if clicking on input fields inside
+                if (!event.target.closest('input, select, button')) {
+                    toggleCategory(header, categoryKey);
+                }
+            }
         }
 
         function createEntryRow(entry, type, catName, subcatName, index, showCards) {
@@ -1447,6 +1959,8 @@
         }
 
         async function addEntry(type, catName, subcatName, showCards) {
+            setSavingStatus();
+            
             const year = document.getElementById(`${type === 'income' ? 'income' : 'expenses'}Year`).value;
             const month = document.getElementById(`${type === 'income' ? 'income' : 'expenses'}Month`).value;
             
@@ -1464,15 +1978,20 @@
             
             await docRef.set(data);
             
+            // Refresh displays
             if (type === 'income') {
-                loadIncome();
+                await loadIncome();
             } else {
-                loadExpenses();
+                await loadExpenses();
             }
-            loadDashboard();
+            await loadDashboard();
+            
+            setSyncedStatus();
         }
 
         async function removeEntry(type, catName, subcatName, index) {
+            setSavingStatus();
+            
             const year = document.getElementById(`${type === 'income' ? 'income' : 'expenses'}Year`).value;
             const month = document.getElementById(`${type === 'income' ? 'income' : 'expenses'}Month`).value;
             
@@ -1490,15 +2009,20 @@
             
             await docRef.set(data);
             
+            // Refresh displays
             if (type === 'income') {
-                loadIncome();
+                await loadIncome();
             } else {
-                loadExpenses();
+                await loadExpenses();
             }
-            loadDashboard();
+            await loadDashboard();
+            
+            setSyncedStatus();
         }
 
         async function saveData(type, catName, subcatName, index, row) {
+            setSavingStatus();
+            
             const description = row.querySelector('.entry-description').value;
             const amount = row.querySelector('.entry-amount').value;
             const cardSelect = row.querySelector('.entry-card-select');
@@ -1520,7 +2044,14 @@
             data[type][catName][subcatName][index] = { description, amount, card };
             
             await docRef.set(data);
-            loadDashboard();
+            
+            // Refresh all displays
+            await loadDashboard();
+            if (type === 'expenses') {
+                await loadExpenses();
+            }
+            
+            setSyncedStatus();
         }
 
         // Scroll to top button
