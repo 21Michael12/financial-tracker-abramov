@@ -775,16 +775,166 @@
             margin-top: 40px;
         }
 
-        .transactions-breakdown h3 {
-            margin-bottom: 20px;
+        .transactions-header {
+            cursor: pointer;
+            user-select: none;
+            padding: 15px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            margin-bottom: 35px;
+            transition: all 0.5s ease;
+            box-shadow: var(--card-shadow);
+            position: relative;
+        }
+
+        .transactions-header:hover {
+            background: var(--bg-tertiary);
+            transform: translateX(-3px);
+        }
+
+        .transactions-header:hover::after {
+            content: 'לחץ למזער/להרחיב';
+            position: absolute;
+            left: 50%;
+            bottom: -25px;
+            transform: translateX(-50%);
+            font-size: 12px;
+            color: var(--text-secondary);
+            opacity: 0;
+            pointer-events: none;
+            background: var(--bg-primary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            animation: fadeInTooltip 0.3s ease forwards;
+        }
+
+        @keyframes fadeInTooltip {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-5px);
+            }
+            to {
+                opacity: 0.9;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        .transactions-header h3 {
             color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0;
+        }
+
+        .transactions-header .collapse-icon {
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            display: inline-block;
+        }
+
+        .transactions-header.collapsed .collapse-icon {
+            transform: rotate(-90deg);
+        }
+
+        .transactions-content {
+            max-height: 5000px;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease;
+            opacity: 1;
+        }
+
+        .transactions-content.collapsed {
+            max-height: 0;
+            opacity: 0;
+        }
+
+        /* Pie Chart */
+        .expenses-pie-chart {
+            margin-top: 40px;
+            background: var(--bg-secondary);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.5s ease;
+        }
+
+        .expenses-pie-chart h3 {
+            text-align: center;
+            color: var(--text-primary);
+            margin-bottom: 30px;
+            font-size: 22px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .chart-legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            transition: all 0.5s ease;
+            cursor: pointer;
+        }
+
+        .legend-item:hover {
+            transform: translateX(-5px) scale(1.02);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            background: var(--bg-tertiary);
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+        .legend-text {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .legend-label {
+            font-weight: 500;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .legend-value {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .legend-percentage {
+            font-weight: bold;
+            color: var(--button-primary);
         }
 
         .card-transactions {
             background: var(--bg-secondary);
             padding: 20px;
             border-radius: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 35px;
             box-shadow: var(--card-shadow);
         }
 
@@ -795,17 +945,68 @@
             margin-bottom: 15px;
             padding-bottom: 10px;
             border-bottom: 2px solid var(--border-color);
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.5s ease;
+            position: relative;
+        }
+
+        .card-transactions-header:hover {
+            transform: translateX(-3px);
+        }
+
+        .card-transactions-header:hover::after {
+            content: 'לחץ למזער/להרחיב';
+            position: absolute;
+            left: 50%;
+            bottom: -25px;
+            transform: translateX(-50%);
+            font-size: 11px;
+            color: var(--text-secondary);
+            opacity: 0;
+            pointer-events: none;
+            background: var(--bg-primary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            animation: fadeInTooltip 0.3s ease forwards;
         }
 
         .card-transactions-header h4 {
             color: var(--text-primary);
             font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-transactions-header .collapse-icon {
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            display: inline-block;
+            font-size: 14px;
+        }
+
+        .card-transactions-header.collapsed .collapse-icon {
+            transform: rotate(-90deg);
         }
 
         .card-transactions-header .total {
             font-size: 20px;
             font-weight: bold;
             color: var(--expense-color);
+        }
+
+        .card-transactions-items {
+            max-height: 5000px;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease;
+            opacity: 1;
+        }
+
+        .card-transactions-items.collapsed {
+            max-height: 0;
+            opacity: 0;
         }
 
         .transaction-item {
@@ -1050,6 +1251,24 @@
                 width: 45px;
                 height: 45px;
             }
+
+            .chart-container {
+                height: 300px;
+            }
+
+            .chart-legend {
+                grid-template-columns: 1fr;
+            }
+
+            .expenses-pie-chart {
+                padding: 20px;
+            }
+
+            /* Hide tooltips on mobile */
+            .transactions-header:hover::after,
+            .card-transactions-header:hover::after {
+                display: none;
+            }
         }
     </style>
 </head>
@@ -1142,14 +1361,27 @@
                     </div>
                 </div>
 
+                <div class="expenses-pie-chart">
+                    <h3>התפלגות החובות</h3>
+                    <div class="chart-container">
+                        <canvas id="expensesPieChart"></canvas>
+                    </div>
+                    <div class="chart-legend" id="chartLegend"></div>
+                </div>
+
                 <div class="cards-summary">
                     <h3>סיכום לפי כרטיסי אשראי</h3>
                     <div class="cards-grid" id="cardsSummaryGrid"></div>
                 </div>
 
                 <div class="transactions-breakdown">
-                    <h3>פירוט עסקאות אשראי</h3>
-                    <div id="transactionsBreakdown"></div>
+                    <div class="transactions-header" onclick="toggleTransactionsBreakdown()">
+                        <h3>
+                            <span class="collapse-icon" id="transactionsCollapseIcon">▼</span>
+                            פירוט עסקאות אשראי
+                        </h3>
+                    </div>
+                    <div id="transactionsBreakdown" class="transactions-content"></div>
                 </div>
             </div>
 
@@ -1209,6 +1441,9 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Chart.js for pie chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <script>
         // Firebase Configuration
@@ -1229,6 +1464,9 @@
         let currentUser = null;
         let currentEditingCard = null;
         let collapsedCategories = {}; // Track which categories are collapsed
+        let transactionsCollapsed = false; // Track transactions breakdown state
+        let collapsedCardTransactions = {}; // Track which card transactions are collapsed
+        let expensesPieChart = null; // Chart.js instance
 
         // Load saved theme immediately
         (function() {
@@ -1594,8 +1832,148 @@
             // Load card summary
             await loadCardsSummary(data.expenses);
             
+            // Load pie chart
+            await loadExpensesPieChart(data.expenses, totalExpenses);
+            
             // Load transactions breakdown
             await loadTransactionsBreakdown(data.expenses);
+            
+            // Restore transactions breakdown state
+            if (transactionsCollapsed) {
+                const header = document.querySelector('.transactions-header');
+                const content = document.getElementById('transactionsBreakdown');
+                if (header && content) {
+                    header.classList.add('collapsed');
+                    content.classList.add('collapsed');
+                }
+            }
+        }
+
+        async function loadExpensesPieChart(expensesData, totalExpenses) {
+            const doc = await db.collection('users').doc(currentUser.uid).get();
+            const cards = doc.data()?.creditCards || [];
+
+            // Calculate totals per card (same logic as loadCardsSummary)
+            const cardTotals = {};
+            cards.forEach(card => cardTotals[card] = 0);
+            cardTotals['העברה בנקאית'] = 0;
+
+            Object.entries(expensesData || {}).forEach(([categoryName, category]) => {
+                Object.entries(category).forEach(([subcatName, entries]) => {
+                    entries.forEach(entry => {
+                        const amount = parseFloat(entry.amount) || 0;
+                        if (amount > 0) {
+                            if (cards.includes(categoryName) && categoryName !== 'העברה בנקאית') {
+                                cardTotals[categoryName] += amount;
+                            } else if (categoryName === 'העברה בנקאית') {
+                                cardTotals['העברה בנקאית'] += amount;
+                            } else if (entry.card) {
+                                if (!cardTotals.hasOwnProperty(entry.card)) {
+                                    cardTotals[entry.card] = 0;
+                                }
+                                cardTotals[entry.card] += amount;
+                            }
+                        }
+                    });
+                });
+            });
+
+            // Filter out cards with no expenses
+            const chartData = [];
+            const chartLabels = [];
+            const chartColors = [];
+            
+            // Predefined colors - darker shades
+            const colors = [
+                '#E74C3C', // Dark Red
+                '#3498DB', // Dark Blue
+                '#F39C12', // Dark Orange
+                '#16A085', // Dark Teal
+                '#8E44AD', // Dark Purple
+                '#E67E22', // Dark Burnt Orange
+                '#C0392B', // Darker Red
+                '#2C3E50', // Dark Gray Blue
+                '#27AE60', // Dark Green
+                '#D35400'  // Dark Pumpkin
+            ];
+            
+            let colorIndex = 0;
+            [...cards, 'העברה בנקאית'].forEach(card => {
+                if (cardTotals[card] > 0) {
+                    chartData.push(cardTotals[card]);
+                    chartLabels.push(card === 'העברה בנקאית' ? '🏦 העברה בנקאית' : card);
+                    chartColors.push(card === 'העברה בנקאית' ? '#27AE60' : colors[colorIndex % colors.length]);
+                    colorIndex++;
+                }
+            });
+
+            // Destroy existing chart if it exists
+            if (expensesPieChart) {
+                expensesPieChart.destroy();
+            }
+
+            // Create chart if there's data
+            if (chartData.length > 0) {
+                const ctx = document.getElementById('expensesPieChart').getContext('2d');
+                expensesPieChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: chartLabels,
+                        datasets: [{
+                            data: chartData,
+                            backgroundColor: chartColors,
+                            borderColor: '#ffffff',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                display: false // We'll create custom legend
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.parsed || 0;
+                                        const percentage = totalExpenses > 0 ? ((value / totalExpenses) * 100).toFixed(1) : 0;
+                                        return `${label}: ₪${value.toLocaleString()} (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Create custom legend
+                const legendContainer = document.getElementById('chartLegend');
+                legendContainer.innerHTML = '';
+                
+                chartLabels.forEach((label, index) => {
+                    const value = chartData[index];
+                    const percentage = totalExpenses > 0 ? ((value / totalExpenses) * 100).toFixed(1) : 0;
+                    
+                    const legendItem = document.createElement('div');
+                    legendItem.className = 'legend-item';
+                    legendItem.innerHTML = `
+                        <div class="legend-color" style="background-color: ${chartColors[index]}"></div>
+                        <div class="legend-text">
+                            <div class="legend-label">${label}</div>
+                            <div class="legend-value">
+                                <span class="legend-percentage">${percentage}%</span>
+                                · ₪${value.toLocaleString()}
+                            </div>
+                        </div>
+                    `;
+                    legendContainer.appendChild(legendItem);
+                });
+            } else {
+                // Show empty state
+                const legendContainer = document.getElementById('chartLegend');
+                legendContainer.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">אין הוצאות להצגה</div>';
+            }
         }
 
         async function loadTransactionsBreakdown(expensesData) {
@@ -1653,7 +2031,7 @@
                     
                     // Add special styling for bank transfer
                     if (card === 'העברה בנקאית') {
-                        cardDiv.style.borderLeft = '4px solid #4CAF50';
+                        cardDiv.style.borderLeft = '4px solid #27AE60';
                     }
                     
                     // Add icon for bank transfer
@@ -1661,11 +2039,27 @@
                     
                     const headerDiv = document.createElement('div');
                     headerDiv.className = 'card-transactions-header';
+                    
+                    // Restore collapsed state
+                    if (collapsedCardTransactions[card]) {
+                        headerDiv.classList.add('collapsed');
+                    }
+                    
                     headerDiv.innerHTML = `
-                        <h4>${cardIcon}${card}</h4>
+                        <h4>
+                            <span class="collapse-icon">▼</span>
+                            ${cardIcon}${card}
+                        </h4>
                         <span class="total">₪${total.toLocaleString()}</span>
                     `;
-                    cardDiv.appendChild(headerDiv);
+                    
+                    const itemsDiv = document.createElement('div');
+                    itemsDiv.className = 'card-transactions-items';
+                    
+                    // Restore collapsed state
+                    if (collapsedCardTransactions[card]) {
+                        itemsDiv.classList.add('collapsed');
+                    }
                     
                     transactions.forEach(transaction => {
                         const itemDiv = document.createElement('div');
@@ -1677,9 +2071,14 @@
                             </div>
                             <div class="transaction-amount">₪${transaction.amount.toLocaleString()}</div>
                         `;
-                        cardDiv.appendChild(itemDiv);
+                        itemsDiv.appendChild(itemDiv);
                     });
                     
+                    // Add click handler to toggle this specific card
+                    headerDiv.onclick = () => toggleCardTransactions(card, headerDiv, itemsDiv);
+                    
+                    cardDiv.appendChild(headerDiv);
+                    cardDiv.appendChild(itemsDiv);
                     breakdownContainer.appendChild(cardDiv);
                 }
             });
@@ -1925,6 +2324,34 @@
                 if (!event.target.closest('input, select, button')) {
                     toggleCategory(header, categoryKey);
                 }
+            }
+        }
+
+        function toggleTransactionsBreakdown() {
+            const header = document.querySelector('.transactions-header');
+            const content = document.getElementById('transactionsBreakdown');
+            const icon = document.getElementById('transactionsCollapseIcon');
+            
+            transactionsCollapsed = !transactionsCollapsed;
+            
+            if (transactionsCollapsed) {
+                header.classList.add('collapsed');
+                content.classList.add('collapsed');
+            } else {
+                header.classList.remove('collapsed');
+                content.classList.remove('collapsed');
+            }
+        }
+
+        function toggleCardTransactions(cardName, headerElement, itemsElement) {
+            collapsedCardTransactions[cardName] = !collapsedCardTransactions[cardName];
+            
+            if (collapsedCardTransactions[cardName]) {
+                headerElement.classList.add('collapsed');
+                itemsElement.classList.add('collapsed');
+            } else {
+                headerElement.classList.remove('collapsed');
+                itemsElement.classList.remove('collapsed');
             }
         }
 
