@@ -1,2510 +1,2037 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>מערכת ניהול פיננסי</title>
-    <style>
-        :root {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f5f5f5;
-            --bg-tertiary: #e8e8e8;
-            --text-primary: #333333;
-            --text-secondary: #666666;
-            --border-color: #ddd;
-            --income-color: #4CAF50;
-            --expense-color: #f44336;
-            --card-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            --button-primary: #2196F3;
-            --button-hover: #1976D2;
-        }
-
-        [data-theme="dark"] {
-            --bg-primary: #1a1a1a;
-            --bg-secondary: #2d2d2d;
-            --bg-tertiary: #3a3a3a;
-            --text-primary: #e0e0e0;
-            --text-secondary: #b0b0b0;
-            --border-color: #444;
-            --card-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
-            color: var(--text-primary);
-            padding: 20px;
-            min-height: 100vh;
-            transition: background 0.5s ease, color 0.5s ease;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: var(--bg-primary);
-            border-radius: 15px;
-            box-shadow: var(--card-shadow);
-            padding: 30px;
-            transition: background 0.5s ease, box-shadow 0.5s ease;
-        }
-
-        /* Auth Styles */
-        #authSection {
-            max-width: 400px;
-            margin: 50px auto;
-            background: var(--bg-primary);
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: var(--card-shadow);
-            transition: background 0.5s ease, box-shadow 0.5s ease;
-            position: relative;
-        }
-
-        .auth-theme-toggle {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            width: 50px;
-            height: 26px;
-            background: var(--border-color);
-            border-radius: 13px;
-            cursor: pointer;
-            transition: background 0.5s ease;
-            z-index: 10;
-        }
-
-        .auth-theme-toggle::before {
-            content: '🌙';
-            position: absolute;
-            left: 2px;
-            top: 2px;
-            width: 22px;
-            height: 22px;
-            background: white;
-            border-radius: 50%;
-            transition: transform 0.5s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        [data-theme="dark"] .auth-theme-toggle::before {
-            content: '☀️';
-            transform: translateX(24px);
-        }
-
-        .auth-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-            border-bottom: 2px solid var(--border-color);
-            transition: border-color 0.5s ease;
-        }
-
-        .auth-tab {
-            flex: 1;
-            padding: 15px;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            transition: all 0.5s ease;
-            border-bottom: 3px solid transparent;
-        }
-
-        .auth-tab.active {
-            color: var(--button-primary);
-            border-bottom-color: var(--button-primary);
-        }
-
-        .auth-form {
-            display: none;
-        }
-
-        .auth-form.active {
-            display: block;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 16px;
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            transition: all 0.5s ease;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: var(--button-primary);
-            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
-        }
-
-        .auth-button {
-            width: 100%;
-            padding: 15px;
-            background: var(--button-primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.5s ease;
-            box-shadow: 0 4px 6px rgba(33, 150, 243, 0.3);
-        }
-
-        .auth-button:hover {
-            background: var(--button-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(33, 150, 243, 0.4);
-        }
-
-        .auth-button:active {
-            transform: translateY(0);
-        }
-
-        .auth-button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .error-message {
-            color: var(--expense-color);
-            font-size: 14px;
-            margin-top: 10px;
-            padding: 10px;
-            background: rgba(244, 67, 54, 0.1);
-            border-radius: 5px;
-            display: none;
-        }
-
-        /* Header */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .header h1 {
-            color: var(--text-primary);
-            font-size: 2em;
-        }
-
-        .header-controls {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .theme-toggle {
-            width: 50px;
-            height: 26px;
-            background: var(--border-color);
-            border-radius: 13px;
-            position: relative;
-            cursor: pointer;
-            transition: background 0.5s ease;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .theme-toggle::before {
-            content: '🌙';
-            position: absolute;
-            left: 2px;
-            top: 2px;
-            width: 22px;
-            height: 22px;
-            background: white;
-            border-radius: 50%;
-            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        [data-theme="dark"] .theme-toggle {
-            background: var(--button-primary);
-        }
-
-        [data-theme="dark"] .theme-toggle::before {
-            content: '☀️';
-            transform: translateX(24px);
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .user-email {
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
-
-        .logout-btn {
-            padding: 8px 16px;
-            background: var(--expense-color);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: opacity 0.3s;
-        }
-
-        .logout-btn:hover {
-            opacity: 0.8;
-        }
-
-        .status-indicator {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--income-color);
-            animation: pulse 2s infinite;
-        }
-
-        .status-dot.saving {
-            background: #FFC107;
-            animation: pulse 0.5s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        /* Tabs */
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-            border-bottom: 2px solid var(--border-color);
-            overflow-x: auto;
-        }
-
-        .tab {
-            padding: 15px 25px;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            transition: all 0.5s ease;
-            border-bottom: 3px solid transparent;
-            white-space: nowrap;
-        }
-
-        .tab:hover {
-            color: var(--text-primary);
-            transform: translateY(-2px);
-        }
-
-        .tab.active {
-            color: var(--button-primary);
-            border-bottom-color: var(--button-primary);
-        }
-
-        .tab-content {
-            display: none;
-            animation: fadeIn 0.5s ease-in;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Date Selection */
-        .date-selection {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-
-        select {
-            padding: 12px 20px;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            transition: all 0.5s ease;
-        }
-
-        select:hover {
-            border-color: var(--button-primary);
-            box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);
-        }
-
-        select:focus {
-            outline: none;
-            border-color: var(--button-primary);
-            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
-        }
-
-        /* Card Management Section */
-        .card-management {
-            background: var(--bg-secondary);
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-        }
-
-        .card-management h3 {
-            margin-bottom: 15px;
-            color: var(--text-primary);
-        }
-
-        .card-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .card-item {
-            background: var(--bg-primary);
-            padding: 10px 15px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: var(--card-shadow);
-        }
-
-        .card-name {
-            font-weight: 500;
-            color: var(--text-primary);
-        }
-
-        .card-actions {
-            display: flex;
-            gap: 5px;
-        }
-
-        .card-btn {
-            padding: 5px 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: opacity 0.3s;
-        }
-
-        .edit-btn {
-            background: #FFC107;
-            color: white;
-        }
-
-        .delete-btn {
-            background: var(--expense-color);
-            color: white;
-        }
-
-        .card-btn:hover {
-            opacity: 0.8;
-        }
-
-        .add-card-section {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .add-card-section input {
-            flex: 1;
-            min-width: 200px;
-            padding: 10px;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-        }
-
-        .add-card-btn {
-            padding: 10px 20px;
-            background: var(--income-color);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: opacity 0.3s;
-        }
-
-        .add-card-btn:hover {
-            opacity: 0.8;
-        }
-
-        /* Categories */
-        .category {
-            background: var(--bg-secondary);
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: var(--card-shadow);
-            transition: all 0.5s ease;
-        }
-
-        .category-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            user-select: none;
-            padding: 10px;
-            background: var(--bg-tertiary);
-            border-radius: 8px;
-            margin-bottom: 15px;
-            transition: all 0.5s ease;
-            outline: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .category-header:focus {
-            outline: none;
-        }
-
-        .category-header:hover {
-            background: var(--border-color);
-            transform: translateX(-3px);
-        }
-
-        .category-header h3 {
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex: 1;
-        }
-
-        .card-total {
-            font-size: 18px;
-            font-weight: bold;
-            color: var(--expense-color);
-            margin-right: auto;
-        }
-
-        .category-header.bank-transfer-category {
-            background: linear-gradient(135deg, var(--bg-tertiary) 0%, #e8f5e9 100%);
-            border-left: 4px solid #4CAF50;
-        }
-
-        [data-theme="dark"] .category-header.bank-transfer-category {
-            background: linear-gradient(135deg, var(--bg-tertiary) 0%, #1b5e20 100%);
-        }
-
-        .collapse-icon {
-            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            display: inline-block;
-        }
-
-        .category-header.collapsed .collapse-icon {
-            transform: rotate(-90deg);
-        }
-
-        .category-content {
-            max-height: 5000px;
-            overflow: hidden;
-            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease;
-            opacity: 1;
-        }
-
-        .category-content.collapsed {
-            max-height: 0;
-            opacity: 0;
-        }
-
-        .subcategory {
-            background: var(--bg-primary);
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-
-        .subcategory h4 {
-            color: var(--text-secondary);
-            margin-bottom: 10px;
-            font-size: 14px;
-        }
-
-        .entry-row {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-            align-items: center;
-        }
-
-        .entry-row input {
-            padding: 10px;
-            border: 2px solid var(--border-color);
-            border-radius: 5px;
-            font-size: 14px;
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            transition: all 0.5s ease;
-        }
-
-        .entry-row input:focus {
-            outline: none;
-            border-color: var(--button-primary);
-            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
-            transform: translateY(-1px);
-        }
-
-        .entry-row input:hover {
-            border-color: var(--button-primary);
-        }
-
-        .entry-description {
-            flex: 2;
-        }
-
-        .entry-amount {
-            flex: 1;
-            text-align: left;
-        }
-
-        .entry-card-select {
-            flex: 1;
-        }
-
-        .remove-entry {
-            background: var(--expense-color);
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: opacity 0.3s;
-        }
-
-        .remove-entry:hover {
-            opacity: 0.8;
-        }
-
-        .add-entry {
-            background: var(--income-color);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            margin-top: 10px;
-            transition: all 0.5s ease;
-            box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
-        }
-
-        .add-entry:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(76, 175, 80, 0.4);
-        }
-
-        .add-entry:active {
-            transform: translateY(0);
-        }
-
-        /* Summary */
-        .summary {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
-        }
-
-        .summary-card {
-            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: var(--card-shadow);
-            transition: all 0.5s ease;
-        }
-
-        .summary-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-        }
-
-        .summary-card h3 {
-            color: var(--text-secondary);
-            font-size: 14px;
-            margin-bottom: 10px;
-            font-weight: 500;
-        }
-
-        .summary-card .amount {
-            font-size: 28px;
-            font-weight: bold;
-            margin-bottom: 5px;
-            transition: all 0.5s ease;
-        }
-
-        .summary-card:hover .amount {
-            transform: scale(1.05);
-        }
-
-        .summary-card.income .amount {
-            color: var(--income-color);
-        }
-
-        .summary-card.expense .amount {
-            color: var(--expense-color);
-        }
-
-        .summary-card.balance .amount {
-            color: var(--button-primary);
-        }
-
-        /* Card Summary in Dashboard */
-        .cards-summary {
-            margin-top: 30px;
-        }
-
-        .cards-summary h3 {
-            margin-bottom: 15px;
-            color: var(--text-primary);
-        }
-
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
-
-        .card-summary-item {
-            background: var(--bg-secondary);
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: var(--card-shadow);
-            transition: all 0.5s ease;
-        }
-
-        .card-summary-item:hover {
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-        }
-
-        .card-summary-item h4 {
-            color: var(--text-secondary);
-            font-size: 14px;
-            margin-bottom: 8px;
-            transition: color 0.5s ease;
-        }
-
-        .card-summary-item .card-amount {
-            font-size: 22px;
-            font-weight: bold;
-            color: var(--expense-color);
-            transition: all 0.5s ease;
-        }
-
-        .card-summary-item:hover .card-amount {
-            transform: scale(1.1);
-        }
-
-        .card-summary-item.bank-transfer {
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-            transition: all 0.5s ease;
-        }
-
-        .card-summary-item.bank-transfer:hover {
-            background: linear-gradient(135deg, #45a049 0%, #388e3c 100%);
-        }
-
-        .card-summary-item.bank-transfer h4,
-        .card-summary-item.bank-transfer .card-amount {
-            color: white;
-        }
-
-        /* Transactions Breakdown */
-        .transactions-breakdown {
-            margin-top: 40px;
-        }
-
-        .transactions-header {
-            cursor: pointer;
-            user-select: none;
-            padding: 15px;
-            background: var(--bg-secondary);
-            border-radius: 10px;
-            margin-bottom: 35px;
-            transition: all 0.5s ease;
-            box-shadow: var(--card-shadow);
-            position: relative;
-        }
-
-        .transactions-header:hover {
-            background: var(--bg-tertiary);
-            transform: translateX(-3px);
-        }
-
-        .transactions-header:hover::after {
-            content: 'לחץ למזער/להרחיב';
-            position: absolute;
-            left: 50%;
-            bottom: -25px;
-            transform: translateX(-50%);
-            font-size: 12px;
-            color: var(--text-secondary);
-            opacity: 0;
-            pointer-events: none;
-            background: var(--bg-primary);
-            padding: 4px 8px;
-            border-radius: 4px;
-            white-space: nowrap;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            animation: fadeInTooltip 0.3s ease forwards;
-        }
-
-        @keyframes fadeInTooltip {
-            from {
-                opacity: 0;
-                transform: translateX(-50%) translateY(-5px);
-            }
-            to {
-                opacity: 0.9;
-                transform: translateX(-50%) translateY(0);
-            }
-        }
-
-        .transactions-header h3 {
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin: 0;
-        }
-
-        .transactions-header .collapse-icon {
-            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            display: inline-block;
-        }
-
-        .transactions-header.collapsed .collapse-icon {
-            transform: rotate(-90deg);
-        }
-
-        .transactions-content {
-            max-height: 5000px;
-            overflow: hidden;
-            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease;
-            opacity: 1;
-        }
-
-        .transactions-content.collapsed {
-            max-height: 0;
-            opacity: 0;
-        }
-
-        /* Pie Chart */
-        .expenses-pie-chart {
-            margin-top: 40px;
-            background: var(--bg-secondary);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: var(--card-shadow);
-            transition: all 0.5s ease;
-        }
-
-        .expenses-pie-chart h3 {
-            text-align: center;
-            color: var(--text-primary);
-            margin-bottom: 30px;
-            font-size: 22px;
-        }
-
-        .chart-container {
-            position: relative;
-            height: 400px;
-            margin-bottom: 30px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .chart-legend {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            background: var(--bg-primary);
-            border-radius: 8px;
-            transition: all 0.5s ease;
-            cursor: pointer;
-        }
-
-        .legend-item:hover {
-            transform: translateX(-5px) scale(1.02);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            background: var(--bg-tertiary);
-        }
-
-        .legend-color {
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
-            flex-shrink: 0;
-        }
-
-        .legend-text {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-        }
-
-        .legend-label {
-            font-weight: 500;
-            color: var(--text-primary);
-            font-size: 14px;
-        }
-
-        .legend-value {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-
-        .legend-percentage {
-            font-weight: bold;
-            color: var(--button-primary);
-        }
-
-        .card-transactions {
-            background: var(--bg-secondary);
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 35px;
-            box-shadow: var(--card-shadow);
-        }
-
-        .card-transactions-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--border-color);
-            cursor: pointer;
-            user-select: none;
-            transition: all 0.5s ease;
-            position: relative;
-        }
-
-        .card-transactions-header:hover {
-            transform: translateX(-3px);
-        }
-
-        .card-transactions-header:hover::after {
-            content: 'לחץ למזער/להרחיב';
-            position: absolute;
-            left: 50%;
-            bottom: -25px;
-            transform: translateX(-50%);
-            font-size: 11px;
-            color: var(--text-secondary);
-            opacity: 0;
-            pointer-events: none;
-            background: var(--bg-primary);
-            padding: 4px 8px;
-            border-radius: 4px;
-            white-space: nowrap;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            animation: fadeInTooltip 0.3s ease forwards;
-        }
-
-        .card-transactions-header h4 {
-            color: var(--text-primary);
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .card-transactions-header .collapse-icon {
-            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            display: inline-block;
-            font-size: 14px;
-        }
-
-        .card-transactions-header.collapsed .collapse-icon {
-            transform: rotate(-90deg);
-        }
-
-        .card-transactions-header .total {
-            font-size: 20px;
-            font-weight: bold;
-            color: var(--expense-color);
-        }
-
-        .card-transactions-items {
-            max-height: 5000px;
-            overflow: hidden;
-            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease;
-            opacity: 1;
-        }
-
-        .card-transactions-items.collapsed {
-            max-height: 0;
-            opacity: 0;
-        }
-
-        .transaction-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            background: var(--bg-primary);
-            border-radius: 5px;
-            margin-bottom: 8px;
-        }
-
-        .transaction-details {
-            flex: 1;
-        }
-
-        .transaction-category {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-bottom: 3px;
-        }
-
-        .transaction-description {
-            font-size: 14px;
-            color: var(--text-primary);
-            font-weight: 500;
-        }
-
-        .transaction-amount {
-            font-size: 16px;
-            font-weight: bold;
-            color: var(--expense-color);
-        }
-
-        /* Scroll to Top Button */
-        .scroll-top {
-            position: fixed;
-            bottom: 30px;
-            left: 30px;
-            width: 50px;
-            height: 50px;
-            background: var(--button-primary);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            font-size: 24px;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            z-index: 1000;
-        }
-
-        .scroll-top.visible {
-            opacity: 1;
-            visibility: visible;
-            animation: bounceIn 0.6s ease;
-        }
-
-        @keyframes bounceIn {
-            0% {
-                transform: scale(0) translateY(50px);
-            }
-            50% {
-                transform: scale(1.1) translateY(0);
-            }
-            100% {
-                transform: scale(1) translateY(0);
-            }
-        }
-
-        .scroll-top:hover {
-            background: var(--button-hover);
-            transform: translateY(-5px) scale(1.1);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
-        }
-
-        .scroll-top:active {
-            transform: translateY(-3px) scale(1.05);
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .modal.active {
-            display: flex;
-            opacity: 1;
-            animation: fadeInModal 0.3s ease;
-        }
-
-        @keyframes fadeInModal {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
-        .modal-content {
-            background: var(--bg-primary);
-            padding: 30px;
-            border-radius: 15px;
-            max-width: 400px;
-            width: 90%;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            transition: all 0.5s ease;
-            animation: slideUp 0.3s ease;
-        }
-
-        @keyframes slideUp {
-            from {
-                transform: translateY(50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .modal-header h3 {
-            color: var(--text-primary);
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: var(--text-secondary);
-        }
-
-        .modal-body input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            margin-bottom: 15px;
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
-
-        .modal-btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.5s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .modal-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
-
-        .modal-btn:active {
-            transform: translateY(0);
-        }
-
-        .modal-btn.primary {
-            background: var(--button-primary);
-            color: white;
-        }
-
-        .modal-btn.primary:hover {
-            background: var(--button-hover);
-        }
-
-        .modal-btn.secondary {
-            background: var(--border-color);
-            color: var(--text-primary);
-        }
-
-        .modal-btn.secondary:hover {
-            background: var(--bg-tertiary);
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .container {
-                padding: 15px;
-            }
-
-            .header h1 {
-                font-size: 1.5em;
-            }
-
-            .tabs {
-                flex-wrap: nowrap;
-                overflow-x: auto;
-            }
-
-            .date-selection {
-                flex-direction: column;
-            }
-
-            select {
-                width: 100%;
-            }
-
-            .entry-row {
-                flex-direction: column;
-            }
-
-            .summary {
-                grid-template-columns: 1fr;
-            }
-
-            .scroll-top {
-                bottom: 20px;
-                left: 20px;
-                width: 45px;
-                height: 45px;
-            }
-
-            .chart-container {
-                height: 300px;
-            }
-
-            .chart-legend {
-                grid-template-columns: 1fr;
-            }
-
-            .expenses-pie-chart {
-                padding: 20px;
-            }
-
-            /* Hide tooltips on mobile */
-            .transactions-header:hover::after,
-            .card-transactions-header:hover::after {
-                display: none;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>יומן מסחר</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* רקע גלובלי - מופיע מיד כשנכנסים לאתר! */
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      background-attachment: fixed;
+      overflow-x: hidden;
+    }
+    * { scroll-behavior: smooth; }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: rgba(17, 24, 39, 0.5); }
+    ::-webkit-scrollbar-thumb { background: rgba(6, 182, 212, 0.5); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(6, 182, 212, 0.7); }
+    
+    /* Loading Screen Animations */
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    @keyframes dots {
+      0%, 20% { content: '.'; }
+      40% { content: '..'; }
+      60%, 100% { content: '...'; }
+    }
+    
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    
+    @keyframes fadeInScale {
+      0% {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+    
+    .spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid rgba(6, 182, 212, 0.1);
+      border-top: 4px solid #06b6d4;
+      border-right: 4px solid #3b82f6;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    
+    #loading-screen {
+      animation: fadeInScale 0.5s ease-out;
+    }
+    
+    /* Ensure #root has background to prevent white flash */
+    #root {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    }
+    
+    .loading-dots::after {
+      content: '...';
+      animation: dots 1.5s steps(3) infinite;
+    }
+    
+    .loading-title {
+      font-size: 36px;
+      font-weight: 900;
+      background: linear-gradient(90deg, #06b6d4, #3b82f6, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+  </style>
 </head>
 <body>
-    <!-- Auth Section -->
-    <div id="authSection">
-        <div class="auth-theme-toggle" onclick="toggleTheme()"></div>
-        
-        <h1 style="text-align: center; margin-bottom: 30px; color: var(--text-primary);">מערכת ניהול פיננסי</h1>
-        
-        <div class="auth-tabs">
-            <button class="auth-tab active" onclick="switchAuthTab('login')">התחברות</button>
-            <button class="auth-tab" onclick="switchAuthTab('register')">הרשמה</button>
-        </div>
-
-        <form id="loginForm" class="auth-form active" onsubmit="handleLogin(event)">
-            <div class="form-group">
-                <label>אימייל</label>
-                <input type="email" id="loginEmail" required>
-            </div>
-            <div class="form-group">
-                <label>סיסמה</label>
-                <input type="password" id="loginPassword" required>
-            </div>
-            <button type="submit" class="auth-button">התחבר</button>
-            <div id="loginError" class="error-message"></div>
-        </form>
-
-        <form id="registerForm" class="auth-form" onsubmit="handleRegister(event)">
-            <div class="form-group">
-                <label>אימייל</label>
-                <input type="email" id="registerEmail" required>
-            </div>
-            <div class="form-group">
-                <label>סיסמה</label>
-                <input type="password" id="registerPassword" required minlength="6">
-            </div>
-            <div class="form-group">
-                <label>אימות סיסמה</label>
-                <input type="password" id="registerPasswordConfirm" required minlength="6">
-            </div>
-            <button type="submit" class="auth-button">הירשם</button>
-            <div id="registerError" class="error-message"></div>
-        </form>
+  <!-- Loading Screen Overlay - Beautiful loading with gradient background -->
+  <div id="loading-screen" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); color: white; z-index: 9999;">
+    <div style="text-align: center;">
+      <!-- Spinner Animation -->
+      <div style="margin-bottom: 30px;">
+        <div class="spinner"></div>
+      </div>
+      
+      <!-- Loading Title -->
+      <div class="loading-title">יומן מסחר</div>
+      
+      <!-- Loading Text -->
+      <div style="font-size: 16px; color: #94a3b8; opacity: 0.9; margin-top: 8px;">
+        בודק התחברות<span class="loading-dots"></span>
+      </div>
+      
+      <!-- Icon -->
+      <div style="margin-top: 20px; opacity: 0.3;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="20" x2="18" y2="10"></line>
+          <line x1="12" y1="20" x2="12" y2="4"></line>
+          <line x1="6" y1="20" x2="6" y2="14"></line>
+        </svg>
+      </div>
     </div>
+  </div>
+  
+  <!-- React App Container -->
+  <div id="root"></div>
+  
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, setDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 
-    <!-- Main App -->
-    <div id="mainApp" style="display: none;">
-        <div class="container">
-            <div class="header">
-                <h1>💰 מערכת ניהול פיננסי</h1>
-                <div class="header-controls">
-                    <div class="status-indicator">
-                        <span class="status-dot"></span>
-                        <span>מסונכרן</span>
-                    </div>
-                    <div class="theme-toggle" onclick="toggleTheme()"></div>
-                    <div class="user-info">
-                        <span class="user-email" id="userEmail"></span>
-                        <button class="logout-btn" onclick="handleLogout()">התנתק</button>
-                    </div>
-                </div>
-            </div>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCXzQmNV_lIj-3aRXaLUIqKESgR0_-V6ZQ",
+      authDomain: "tradingjournal-abramov.firebaseapp.com",
+      projectId: "tradingjournal-abramov",
+      storageBucket: "tradingjournal-abramov.firebasestorage.app",
+      messagingSenderId: "837839306524",
+      appId: "1:837839306524:web:dfed02b3a02573e3f444d9"
+    };
 
-            <div class="tabs">
-                <button class="tab active" onclick="switchTab('dashboard')">לוח בקרה</button>
-                <button class="tab" onclick="switchTab('income')">הכנסות</button>
-                <button class="tab" onclick="switchTab('expenses')">הוצאות</button>
-            </div>
-
-            <!-- Dashboard Tab -->
-            <div id="dashboard" class="tab-content active">
-                <div class="date-selection">
-                    <select id="dashboardYear"></select>
-                    <select id="dashboardMonth"></select>
-                </div>
-
-                <div class="summary">
-                    <div class="summary-card income">
-                        <h3>סך הכנסות</h3>
-                        <div class="amount" id="totalIncome">₪0</div>
-                    </div>
-                    <div class="summary-card expense">
-                        <h3>סך הוצאות</h3>
-                        <div class="amount" id="totalExpenses">₪0</div>
-                    </div>
-                    <div class="summary-card balance">
-                        <h3>יתרה</h3>
-                        <div class="amount" id="balance">₪0</div>
-                    </div>
-                </div>
-
-                <div class="expenses-pie-chart">
-                    <h3>התפלגות החובות</h3>
-                    <div class="chart-container">
-                        <canvas id="expensesPieChart"></canvas>
-                    </div>
-                    <div class="chart-legend" id="chartLegend"></div>
-                </div>
-
-                <div class="cards-summary">
-                    <h3>סיכום לפי כרטיסי אשראי</h3>
-                    <div class="cards-grid" id="cardsSummaryGrid"></div>
-                </div>
-
-                <div class="transactions-breakdown">
-                    <div class="transactions-header" onclick="toggleTransactionsBreakdown()">
-                        <h3>
-                            <span class="collapse-icon" id="transactionsCollapseIcon">▼</span>
-                            פירוט עסקאות אשראי
-                        </h3>
-                    </div>
-                    <div id="transactionsBreakdown" class="transactions-content"></div>
-                </div>
-            </div>
-
-            <!-- Income Tab -->
-            <div id="income" class="tab-content">
-                <div class="date-selection">
-                    <select id="incomeYear"></select>
-                    <select id="incomeMonth"></select>
-                </div>
-
-                <div id="incomeCategories"></div>
-            </div>
-
-            <!-- Expenses Tab -->
-            <div id="expenses" class="tab-content">
-                <div class="date-selection">
-                    <select id="expensesYear"></select>
-                    <select id="expensesMonth"></select>
-                </div>
-
-                <!-- Card Management Section -->
-                <div class="card-management">
-                    <h3>ניהול כרטיסי אשראי</h3>
-                    <div class="card-list" id="cardList"></div>
-                    <div class="add-card-section">
-                        <input type="text" id="newCardName" placeholder="שם כרטיס חדש">
-                        <button class="add-card-btn" onclick="addCard()">הוסף כרטיס</button>
-                    </div>
-                </div>
-
-                <div id="expensesCategories"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Scroll to Top Button -->
-    <button class="scroll-top" onclick="scrollToTop()">↑</button>
-
-    <!-- Edit Card Modal -->
-    <div id="editCardModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>ערוך כרטיס אשראי</h3>
-                <button class="modal-close" onclick="closeEditCardModal()">×</button>
-            </div>
-            <div class="modal-body">
-                <input type="text" id="editCardName" placeholder="שם הכרטיס">
-            </div>
-            <div class="modal-actions">
-                <button class="modal-btn secondary" onclick="closeEditCardModal()">ביטול</button>
-                <button class="modal-btn primary" onclick="saveCardEdit()">שמור</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
     
-    <!-- Chart.js for pie chart -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    // Firebase Auth automatically persists the user session in localStorage
+    // Users will stay logged in even after closing the browser
+    // To sign out, they must explicitly click the logout button
 
-    <script>
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyD4MbREsKAkYi7WL-mzi97dAT0UnL2Fm_8",
-            authDomain: "abramov-finance-tracker.firebaseapp.com",
-            projectId: "abramov-finance-tracker",
-            storageBucket: "abramov-finance-tracker.firebasestorage.app",
-            messagingSenderId: "448591919322",
-            appId: "1:448591919322:web:fd2347f99bf38d60314de3"
+    console.log('🔥 Firebase initialized');
+
+    // Export Firebase for global use
+    window.firebaseApp = app;
+    window.firebaseDB = db;
+    window.firebaseAuth = auth;
+    window.firebaseModules = { 
+      collection, getDocs, setDoc, deleteDoc, doc,
+      createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged
+    };
+    
+    // Dispatch event to let React know Firebase is ready
+    window.dispatchEvent(new CustomEvent('firebaseModulesReady'));
+    console.log('✅ Firebase modules ready');
+  </script>
+  
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.23.5/babel.min.js"></script>
+  
+  <script type="text/babel">
+    console.log('🚀 Starting app...');
+    console.log('React:', typeof React !== 'undefined' ? '✅' : '❌');
+    console.log('ReactDOM:', typeof ReactDOM !== 'undefined' ? '✅' : '❌');
+    console.log('Babel:', typeof Babel !== 'undefined' ? '✅' : '❌');
+    
+    // Check Firebase
+    setTimeout(() => {
+      console.log('Firebase modules:', window.firebaseModules ? '✅' : '❌');
+      console.log('Firebase auth:', window.firebaseAuth ? '✅' : '❌');
+      console.log('Firebase DB:', window.firebaseDB ? '✅' : '❌');
+    }, 100);
+
+    // Fallback: Remove loading screen after 10 seconds if app doesn't load
+    setTimeout(() => {
+      const loadingScreen = document.getElementById('loading-screen');
+      if (loadingScreen && loadingScreen.parentNode) {
+        console.warn('⚠️ Loading screen timeout - force removing');
+        loadingScreen.remove();
+      }
+    }, 10000);
+
+    const { useState, useEffect, useRef } = React;
+
+    // Simple SVG Icons
+    const Icon = ({ children, size = 24, ...props }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+        {children}
+      </svg>
+    );
+
+    const CalendarIcon = (props) => <Icon {...props}><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></Icon>;
+    const PlusIcon = (props) => <Icon {...props}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></Icon>;
+    const EditIcon = (props) => <Icon {...props}><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></Icon>;
+    const TrashIcon = (props) => <Icon {...props}><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></Icon>;
+    const DollarIcon = (props) => <Icon {...props}><line x1="12" y1="2" x2="12" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></Icon>;
+    const ChartIcon = (props) => <Icon {...props}><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></Icon>;
+    const SettingsIcon = (props) => <Icon {...props}><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6M5.6 5.6l4.2 4.2m4.2 4.2l4.2 4.2M1 12h6m6 0h6M5.6 18.4l4.2-4.2m4.2-4.2l4.2-4.2"/></Icon>;
+    const UserIcon = (props) => <Icon {...props}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></Icon>;
+    const LockIcon = (props) => <Icon {...props}><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></Icon>;
+    const EyeIcon = (props) => <Icon {...props}><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></Icon>;
+    const EyeOffIcon = (props) => <Icon {...props}><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></Icon>;
+    const LogOutIcon = (props) => <Icon {...props}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></Icon>;
+    const CheckIcon = (props) => <Icon {...props}><polyline points="20 6 9 17 4 12"/></Icon>;
+
+    // Authentication Screen Component
+    const AuthScreen = () => {
+      console.log('🔐 AuthScreen rendering...');
+      
+      const [isLogin, setIsLogin] = useState(true);
+      const [email, setEmail] = useState('');
+      const [password, setPassword] = useState('');
+      const [confirmPassword, setConfirmPassword] = useState('');
+      const [showPassword, setShowPassword] = useState(false);
+      const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+      const [error, setError] = useState('');
+      const [loading, setLoading] = useState(false);
+
+      // Password validation rules
+      const validatePassword = (pass) => {
+        return {
+          minLength: pass.length >= 6,
+          maxLength: pass.length <= 20,
+          hasUppercase: /[A-Z]/.test(pass),
+          isEnglish: /^[A-Za-z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*$/.test(pass)
         };
+      };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+      const passwordRules = validatePassword(password);
+      const isPasswordValid = !isLogin ? (
+        passwordRules.minLength && 
+        passwordRules.maxLength && 
+        passwordRules.hasUppercase && 
+        passwordRules.isEnglish
+      ) : true;
 
-        let currentUser = null;
-        let currentEditingCard = null;
-        let collapsedCategories = {}; // Track which categories are collapsed
-        let transactionsCollapsed = false; // Track transactions breakdown state
-        let collapsedCardTransactions = {}; // Track which card transactions are collapsed
-        let expensesPieChart = null; // Chart.js instance
+      useEffect(() => {
+        console.log('✅ AuthScreen mounted!');
+      }, []);
 
-        // Load saved theme immediately
-        (function() {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-        })();
+      const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+        setLoading(true);
 
-        // Status indicator functions
-        function setSavingStatus() {
-            const statusDot = document.querySelector('.status-dot');
-            const statusText = document.querySelector('.status-indicator span:last-child');
-            if (statusDot && statusText) {
-                statusDot.classList.add('saving');
-                statusText.textContent = 'שומר...';
-            }
+        if (!email || !password) {
+          setError('נא למלא את כל השדות');
+          setLoading(false);
+          return;
         }
 
-        function setSyncedStatus() {
-            const statusDot = document.querySelector('.status-dot');
-            const statusText = document.querySelector('.status-indicator span:last-child');
-            if (statusDot && statusText) {
-                statusDot.classList.remove('saving');
-                statusText.textContent = 'מסונכרן';
-            }
+        // Validation for signup only
+        if (!isLogin) {
+          if (password.length < 6) {
+            setError('הסיסמה חייבת להכיל לפחות 6 תווים');
+            setLoading(false);
+            return;
+          }
+
+          if (password.length > 20) {
+            setError('הסיסמה חייבת להכיל מקסימום 20 תווים');
+            setLoading(false);
+            return;
+          }
+
+          if (!/[A-Z]/.test(password)) {
+            setError('הסיסמה חייבת להכיל לפחות אות גדולה אחת באנגלית');
+            setLoading(false);
+            return;
+          }
+
+          if (!/^[A-Za-z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*$/.test(password)) {
+            setError('הסיסמה חייבת להכיל רק תווים באנגלית');
+            setLoading(false);
+            return;
+          }
+
+          if (password !== confirmPassword) {
+            setError('הסיסמאות אינן תואמות');
+            setLoading(false);
+            return;
+          }
         }
 
-        // Hebrew months
-        const hebrewMonths = [
-            'ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני',
-            'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר'
-        ];
+        try {
+          const auth = window.firebaseAuth;
+          const { createUserWithEmailAndPassword, signInWithEmailAndPassword } = window.firebaseModules;
 
-        // Data structure
-        const categories = {
-            income: [
-                { name: 'יתרת בנק', subcategories: ['יתרה נוכחית'] },
-                { name: 'משכורת', subcategories: ['משכורת חודשית'] },
-                { name: 'הכנסות אחרות', subcategories: ['הכנסות נוספות'] }
-            ],
-            expenses: {
-                obligations: [
-                    { name: 'כרטיס אשראי 1', subcategories: ['מזון מהיר', 'אופנה', 'קניות', 'בילויים', 'תשלום רכב', 'ביטוח', 'שירותים', 'אחר'] },
-                    { name: 'כרטיס אשראי 2', subcategories: ['מזון מהיר', 'אופנה', 'קניות', 'בילויים', 'תשלום רכב', 'ביטוח', 'שירותים', 'אחר'] },
-                    { name: 'העברה בנקאית', subcategories: ['העברה בנקאית'] }
-                ],
-                assets: [
-                    { name: 'השכלה', subcategories: ['לימודים'] },
-                    { name: 'השקעות', subcategories: ['השקעות חודשיות'] },
-                    { name: 'חיסכון', subcategories: ['חיסכון חודשי'] },
-                    { name: 'ציוד', subcategories: ['קניות ציוד'] },
-                    { name: 'חדר כושר', subcategories: ['מנוי חודשי'] }
-                ]
-            }
-        };
-
-        // Initialize year/month dropdowns
-        function initializeDropdowns() {
-            const currentYear = new Date().getFullYear();
-            const currentMonth = new Date().getMonth();
-            
-            // If we're in December (month 11), also show next year
-            const maxYear = currentMonth === 11 ? currentYear + 1 : currentYear;
-
-            ['dashboard', 'income', 'expenses'].forEach(prefix => {
-                const yearSelect = document.getElementById(`${prefix}Year`);
-                const monthSelect = document.getElementById(`${prefix}Month`);
-
-                // Years (2020 onwards, including next year if December)
-                for (let year = 2020; year <= maxYear; year++) {
-                    const option = document.createElement('option');
-                    option.value = year;
-                    option.textContent = year;
-                    if (year === currentYear) option.selected = true;
-                    yearSelect.appendChild(option);
-                }
-
-                // Months
-                hebrewMonths.forEach((month, index) => {
-                    const option = document.createElement('option');
-                    option.value = index;
-                    option.textContent = month;
-                    if (index === currentMonth) option.selected = true;
-                    monthSelect.appendChild(option);
-                });
-                
-                // Add change handlers to clear collapsed state
-                yearSelect.addEventListener('change', () => {
-                    if (prefix === 'expenses') {
-                        loadExpenses(false);
-                    } else if (prefix === 'income') {
-                        loadIncome();
-                    } else {
-                        loadDashboard();
-                    }
-                });
-                
-                monthSelect.addEventListener('change', () => {
-                    if (prefix === 'expenses') {
-                        loadExpenses(false);
-                    } else if (prefix === 'income') {
-                        loadIncome();
-                    } else {
-                        loadDashboard();
-                    }
-                });
-            });
+          if (isLogin) {
+            await signInWithEmailAndPassword(auth, email, password);
+            console.log('✅ Logged in successfully');
+          } else {
+            await createUserWithEmailAndPassword(auth, email, password);
+            console.log('✅ Account created successfully');
+          }
+        } catch (err) {
+          console.error('❌ Auth error:', err);
+          
+          if (err.code === 'auth/email-already-in-use') {
+            setError('המייל כבר קיים במערכת');
+          } else if (err.code === 'auth/invalid-email') {
+            setError('כתובת מייל לא תקינה');
+          } else if (err.code === 'auth/user-not-found') {
+            setError('משתמש לא נמצא');
+          } else if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+            setError('סיסמה שגויה');
+          } else if (err.code === 'auth/weak-password') {
+            setError('הסיסמה חלשה מדי');
+          } else {
+            setError('שגיאה: ' + (err.message || 'נסה שוב'));
+          }
+        } finally {
+          setLoading(false);
         }
+      };
 
-        // Auth functions
-        function switchAuthTab(tab) {
-            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
-            
-            if (tab === 'login') {
-                document.querySelectorAll('.auth-tab')[0].classList.add('active');
-                document.getElementById('loginForm').classList.add('active');
-            } else {
-                document.querySelectorAll('.auth-tab')[1].classList.add('active');
-                document.getElementById('registerForm').classList.add('active');
-            }
-        }
+      return (
+        <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)' }}>
+          <div className="auth-container w-full max-w-md" style={{ animation: 'fadeIn 0.5s ease-out' }}>
+            <div className="text-center mb-8">
+              <div className="flex items-center justify-center mb-4">
+                <ChartIcon size={48} className="text-cyan-400" />
+              </div>
+              <h1 className="text-5xl font-black mb-3 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
+                יומן מסחר
+              </h1>
+              <p className="text-gray-400 text-sm">יומן המסחר שיעזור לך להיות סוחר טוב יותר</p>
+            </div>
 
-        async function handleLogin(event) {
-            event.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            const errorDiv = document.getElementById('loginError');
+            <div className="bg-gray-900/90 backdrop-blur-xl rounded-2xl border border-cyan-500/30 p-8 shadow-2xl">
+              <div className="flex gap-2 mb-6 bg-gray-800/50 p-1 rounded-xl">
+                <button
+                  onClick={() => { setIsLogin(true); setError(''); }}
+                  className={`flex-1 py-3 rounded-lg font-semibold transition-all ${
+                    isLogin 
+                      ? 'bg-cyan-500 text-white shadow-lg' 
+                      : 'text-gray-400 hover:text-gray-200'
+                  }`}
+                >
+                  התחברות
+                </button>
+                <button
+                  onClick={() => { setIsLogin(false); setError(''); }}
+                  className={`flex-1 py-3 rounded-lg font-semibold transition-all ${
+                    !isLogin 
+                      ? 'bg-cyan-500 text-white shadow-lg' 
+                      : 'text-gray-400 hover:text-gray-200'
+                  }`}
+                >
+                  הרשמה
+                </button>
+              </div>
 
-            try {
-                await auth.signInWithEmailAndPassword(email, password);
-            } catch (error) {
-                errorDiv.textContent = getErrorMessage(error.code);
-                errorDiv.style.display = 'block';
-            }
-        }
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div>
+                  <label className="block text-sm text-gray-300 mb-2 font-medium">
+                    <UserIcon size={16} className="inline ml-2" />
+                    כתובת מייל
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full px-4 py-3 bg-gray-800/50 border border-cyan-500/30 rounded-xl text-gray-200 placeholder-gray-500 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 transition-all"
+                    placeholder="your@email.com"
+                    disabled={loading}
+                    autoComplete="email"
+                  />
+                </div>
 
-        async function handleRegister(event) {
-            event.preventDefault();
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
-            const confirmPassword = document.getElementById('registerPasswordConfirm').value;
-            const errorDiv = document.getElementById('registerError');
-
-            if (password !== confirmPassword) {
-                errorDiv.textContent = 'הסיסמאות אינן תואמות';
-                errorDiv.style.display = 'block';
-                return;
-            }
-
-            try {
-                await auth.createUserWithEmailAndPassword(email, password);
-            } catch (error) {
-                errorDiv.textContent = getErrorMessage(error.code);
-                errorDiv.style.display = 'block';
-            }
-        }
-
-        function handleLogout() {
-            auth.signOut();
-        }
-
-        function getErrorMessage(code) {
-            const errors = {
-                'auth/email-already-in-use': 'האימייל כבר בשימוש',
-                'auth/invalid-email': 'כתובת אימייל לא תקינה',
-                'auth/operation-not-allowed': 'פעולה לא מורשית',
-                'auth/weak-password': 'הסיסמה חלשה מדי (מינימום 6 תווים)',
-                'auth/user-disabled': 'המשתמש חסום',
-                'auth/user-not-found': 'משתמש לא קיים',
-                'auth/wrong-password': 'סיסמה שגויה'
-            };
-            return errors[code] || 'אירעה שגיאה. נסה שוב.';
-        }
-
-        // Auth state observer
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                currentUser = user;
-                document.getElementById('authSection').style.display = 'none';
-                document.getElementById('mainApp').style.display = 'block';
-                document.getElementById('userEmail').textContent = user.email;
-                
-                initializeDropdowns();
-                await loadCreditCards();
-                loadDashboard();
-                loadIncome();
-                loadExpenses();
-                
-                // Apply saved theme
-                const savedTheme = localStorage.getItem('theme') || 'light';
-                document.documentElement.setAttribute('data-theme', savedTheme);
-            } else {
-                currentUser = null;
-                document.getElementById('authSection').style.display = 'block';
-                document.getElementById('mainApp').style.display = 'none';
-            }
-        });
-
-        // Theme toggle
-        function toggleTheme() {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-        }
-
-        // Tab switching
-        function switchTab(tab) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            
-            event.target.classList.add('active');
-            document.getElementById(tab).classList.add('active');
-        }
-
-        // Credit Card Management
-        async function loadCreditCards() {
-            if (!currentUser) return;
-
-            const doc = await db.collection('users').doc(currentUser.uid).get();
-            const userData = doc.data();
-            
-            if (userData && userData.creditCards) {
-                renderCardList(userData.creditCards);
-                updateExpensesCategories(userData.creditCards);
-            } else {
-                // Default cards
-                const defaultCards = ['כרטיס 1', 'כרטיס 2'];
-                await db.collection('users').doc(currentUser.uid).set({
-                    creditCards: defaultCards
-                }, { merge: true });
-                renderCardList(defaultCards);
-                updateExpensesCategories(defaultCards);
-            }
-        }
-
-        function renderCardList(cards) {
-            const cardList = document.getElementById('cardList');
-            cardList.innerHTML = '';
-            
-            cards.forEach((card, index) => {
-                const cardItem = document.createElement('div');
-                cardItem.className = 'card-item';
-                cardItem.innerHTML = `
-                    <span class="card-name">${card}</span>
-                    <div class="card-actions">
-                        <button class="card-btn edit-btn" onclick="editCard(${index})">✏️</button>
-                        <button class="card-btn delete-btn" onclick="deleteCard(${index})">🗑️</button>
-                    </div>
-                `;
-                cardList.appendChild(cardItem);
-            });
-        }
-
-        async function addCard() {
-            const newCardName = document.getElementById('newCardName').value.trim();
-            if (!newCardName) {
-                alert('אנא הזן שם לכרטיס');
-                return;
-            }
-
-            const doc = await db.collection('users').doc(currentUser.uid).get();
-            const cards = doc.data()?.creditCards || [];
-            
-            cards.push(newCardName);
-            
-            await db.collection('users').doc(currentUser.uid).set({
-                creditCards: cards
-            }, { merge: true });
-
-            document.getElementById('newCardName').value = '';
-            
-            // Refresh all displays immediately
-            await loadCreditCards();
-            await loadExpenses();
-            await loadDashboard();
-        }
-
-        function editCard(index) {
-            db.collection('users').doc(currentUser.uid).get().then(doc => {
-                const cards = doc.data()?.creditCards || [];
-                currentEditingCard = index;
-                document.getElementById('editCardName').value = cards[index];
-                document.getElementById('editCardModal').classList.add('active');
-            });
-        }
-
-        async function saveCardEdit() {
-            const newName = document.getElementById('editCardName').value.trim();
-            if (!newName) {
-                alert('אנא הזן שם לכרטיס');
-                return;
-            }
-
-            const doc = await db.collection('users').doc(currentUser.uid).get();
-            const cards = doc.data()?.creditCards || [];
-            
-            cards[currentEditingCard] = newName;
-            
-            await db.collection('users').doc(currentUser.uid).set({
-                creditCards: cards
-            }, { merge: true });
-
-            closeEditCardModal();
-            
-            // Refresh all displays immediately
-            await loadCreditCards();
-            await loadExpenses();
-            await loadDashboard();
-        }
-
-        async function deleteCard(index) {
-            if (!confirm('האם אתה בטוח שברצונך למחוק כרטיס זה?')) return;
-
-            const doc = await db.collection('users').doc(currentUser.uid).get();
-            const cards = doc.data()?.creditCards || [];
-            
-            cards.splice(index, 1);
-            
-            await db.collection('users').doc(currentUser.uid).set({
-                creditCards: cards
-            }, { merge: true });
-
-            // Refresh all displays immediately
-            await loadCreditCards();
-            await loadExpenses();
-            await loadDashboard();
-        }
-
-        function closeEditCardModal() {
-            document.getElementById('editCardModal').classList.remove('active');
-            currentEditingCard = null;
-        }
-
-        function updateExpensesCategories(cards) {
-            categories.expenses.obligations = [
-                ...cards.map(card => ({
-                    name: card,
-                    subcategories: ['מזון מהיר', 'אופנה', 'קניות', 'בילויים', 'תשלום רכב', 'ביטוח', 'שירותים', 'אחר']
-                })),
-                { name: 'העברה בנקאית', subcategories: ['העברה בנקאית'] }
-            ];
-        }
-
-        // Load data functions
-        async function loadDashboard() {
-            const year = document.getElementById('dashboardYear').value;
-            const month = document.getElementById('dashboardMonth').value;
-            
-            const doc = await db.collection('users').doc(currentUser.uid)
-                .collection('data').doc(`${year}-${month}`).get();
-            
-            const data = doc.data() || { income: {}, expenses: {} };
-            
-            const totalIncome = calculateTotal(data.income);
-            const totalExpenses = calculateTotal(data.expenses);
-            const balance = totalIncome - totalExpenses;
-            
-            document.getElementById('totalIncome').textContent = `₪${totalIncome.toLocaleString()}`;
-            document.getElementById('totalExpenses').textContent = `₪${totalExpenses.toLocaleString()}`;
-            document.getElementById('balance').textContent = `₪${balance.toLocaleString()}`;
-
-            // Load card summary
-            await loadCardsSummary(data.expenses);
-            
-            // Load pie chart
-            await loadExpensesPieChart(data.expenses, totalExpenses);
-            
-            // Load transactions breakdown
-            await loadTransactionsBreakdown(data.expenses);
-            
-            // Restore transactions breakdown state
-            if (transactionsCollapsed) {
-                const header = document.querySelector('.transactions-header');
-                const content = document.getElementById('transactionsBreakdown');
-                if (header && content) {
-                    header.classList.add('collapsed');
-                    content.classList.add('collapsed');
-                }
-            }
-        }
-
-        async function loadExpensesPieChart(expensesData, totalExpenses) {
-            const doc = await db.collection('users').doc(currentUser.uid).get();
-            const cards = doc.data()?.creditCards || [];
-
-            // Calculate totals per card (same logic as loadCardsSummary)
-            const cardTotals = {};
-            cards.forEach(card => cardTotals[card] = 0);
-            cardTotals['העברה בנקאית'] = 0;
-
-            Object.entries(expensesData || {}).forEach(([categoryName, category]) => {
-                Object.entries(category).forEach(([subcatName, entries]) => {
-                    entries.forEach(entry => {
-                        const amount = parseFloat(entry.amount) || 0;
-                        if (amount > 0) {
-                            if (cards.includes(categoryName) && categoryName !== 'העברה בנקאית') {
-                                cardTotals[categoryName] += amount;
-                            } else if (categoryName === 'העברה בנקאית') {
-                                cardTotals['העברה בנקאית'] += amount;
-                            } else if (entry.card) {
-                                if (!cardTotals.hasOwnProperty(entry.card)) {
-                                    cardTotals[entry.card] = 0;
-                                }
-                                cardTotals[entry.card] += amount;
-                            }
-                        }
-                    });
-                });
-            });
-
-            // Filter out cards with no expenses
-            const chartData = [];
-            const chartLabels = [];
-            const chartColors = [];
-            
-            // Predefined colors - darker shades
-            const colors = [
-                '#E74C3C', // Dark Red
-                '#3498DB', // Dark Blue
-                '#F39C12', // Dark Orange
-                '#16A085', // Dark Teal
-                '#8E44AD', // Dark Purple
-                '#E67E22', // Dark Burnt Orange
-                '#C0392B', // Darker Red
-                '#2C3E50', // Dark Gray Blue
-                '#27AE60', // Dark Green
-                '#D35400'  // Dark Pumpkin
-            ];
-            
-            let colorIndex = 0;
-            [...cards, 'העברה בנקאית'].forEach(card => {
-                if (cardTotals[card] > 0) {
-                    chartData.push(cardTotals[card]);
-                    chartLabels.push(card === 'העברה בנקאית' ? '🏦 העברה בנקאית' : card);
-                    chartColors.push(card === 'העברה בנקאית' ? '#27AE60' : colors[colorIndex % colors.length]);
-                    colorIndex++;
-                }
-            });
-
-            // Destroy existing chart if it exists
-            if (expensesPieChart) {
-                expensesPieChart.destroy();
-            }
-
-            // Create chart if there's data
-            if (chartData.length > 0) {
-                const ctx = document.getElementById('expensesPieChart').getContext('2d');
-                expensesPieChart = new Chart(ctx, {
-                    type: 'pie',
-                    data: {
-                        labels: chartLabels,
-                        datasets: [{
-                            data: chartData,
-                            backgroundColor: chartColors,
-                            borderColor: '#ffffff',
-                            borderWidth: 2
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        plugins: {
-                            legend: {
-                                display: false // We'll create custom legend
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        const label = context.label || '';
-                                        const value = context.parsed || 0;
-                                        const percentage = totalExpenses > 0 ? ((value / totalExpenses) * 100).toFixed(1) : 0;
-                                        return `${label}: ₪${value.toLocaleString()} (${percentage}%)`;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-
-                // Create custom legend
-                const legendContainer = document.getElementById('chartLegend');
-                legendContainer.innerHTML = '';
-                
-                chartLabels.forEach((label, index) => {
-                    const value = chartData[index];
-                    const percentage = totalExpenses > 0 ? ((value / totalExpenses) * 100).toFixed(1) : 0;
-                    
-                    const legendItem = document.createElement('div');
-                    legendItem.className = 'legend-item';
-                    legendItem.innerHTML = `
-                        <div class="legend-color" style="background-color: ${chartColors[index]}"></div>
-                        <div class="legend-text">
-                            <div class="legend-label">${label}</div>
-                            <div class="legend-value">
-                                <span class="legend-percentage">${percentage}%</span>
-                                · ₪${value.toLocaleString()}
-                            </div>
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-sm text-gray-300 font-medium">
+                      <LockIcon size={16} className="inline ml-2" />
+                      סיסמה
+                    </label>
+                    {!isLogin && (
+                      <span className="text-xs text-gray-500">לחץ על העין 👁️ לראות הסיסמה</span>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full px-4 py-3 pl-12 bg-gray-800/50 border border-cyan-500/30 rounded-xl text-gray-200 placeholder-gray-500 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 transition-all"
+                      placeholder={showPassword ? "MyPassword123" : "••••••••••"}
+                      disabled={loading}
+                      autoComplete={isLogin ? "current-password" : "new-password"}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-cyan-400 transition-colors rounded-lg hover:bg-gray-700/30"
+                      tabIndex={-1}
+                      title={showPassword ? "הסתר סיסמה" : "הצג סיסמה"}
+                    >
+                      {showPassword ? <EyeOffIcon size={20} /> : <EyeIcon size={20} />}
+                    </button>
+                  </div>
+                  {!isLogin && password.length > 0 && (
+                    <div className="mt-3 p-3 bg-gray-800/30 rounded-lg border border-gray-700/50 transition-all duration-300">
+                      <p className="text-xs text-gray-400 font-semibold mb-2">דרישות סיסמה:</p>
+                      <div className="space-y-1.5">
+                        <div className={`flex items-center gap-2 text-xs transition-colors duration-200 ${passwordRules.minLength ? 'text-emerald-400' : 'text-gray-500'}`}>
+                          <span className="font-bold">{passwordRules.minLength ? '✓' : '○'}</span>
+                          <span>לפחות 6 תווים</span>
                         </div>
-                    `;
-                    legendContainer.appendChild(legendItem);
-                });
-            } else {
-                // Show empty state
-                const legendContainer = document.getElementById('chartLegend');
-                legendContainer.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">אין הוצאות להצגה</div>';
-            }
-        }
+                        <div className={`flex items-center gap-2 text-xs transition-colors duration-200 ${passwordRules.maxLength ? 'text-emerald-400' : 'text-gray-500'}`}>
+                          <span className="font-bold">{passwordRules.maxLength ? '✓' : '○'}</span>
+                          <span>מקסימום 20 תווים</span>
+                        </div>
+                        <div className={`flex items-center gap-2 text-xs transition-colors duration-200 ${passwordRules.hasUppercase ? 'text-emerald-400' : 'text-gray-500'}`}>
+                          <span className="font-bold">{passwordRules.hasUppercase ? '✓' : '○'}</span>
+                          <span>לפחות אות גדולה אחת באנגלית (A-Z)</span>
+                        </div>
+                        <div className={`flex items-center gap-2 text-xs transition-colors duration-200 ${passwordRules.isEnglish ? 'text-emerald-400' : 'text-gray-500'}`}>
+                          <span className="font-bold">{passwordRules.isEnglish ? '✓' : '○'}</span>
+                          <span>רק תווים באנגלית (אותיות, מספרים וסימנים)</span>
+                        </div>
+                      </div>
+                      {isPasswordValid && (
+                        <div className="mt-2 pt-2 border-t border-emerald-500/30 animate-pulse">
+                          <div className="flex items-center gap-2 text-xs text-emerald-400 font-semibold">
+                            <span>✓</span>
+                            <span>הסיסמה עומדת בכל הדרישות!</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
 
-        async function loadTransactionsBreakdown(expensesData) {
-            const breakdownContainer = document.getElementById('transactionsBreakdown');
-            breakdownContainer.innerHTML = '';
+                {!isLogin && (
+                  <div>
+                    <label className="block text-sm text-gray-300 mb-2 font-medium">
+                      <LockIcon size={16} className="inline ml-2" />
+                      אימות סיסמה
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showConfirmPassword ? "text" : "password"}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="w-full px-4 py-3 pl-12 bg-gray-800/50 border border-cyan-500/30 rounded-xl text-gray-200 placeholder-gray-500 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 transition-all"
+                        placeholder={showConfirmPassword ? "MyPassword123" : "••••••••••"}
+                        disabled={loading}
+                        autoComplete="new-password"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-cyan-400 transition-colors rounded-lg hover:bg-gray-700/30"
+                        tabIndex={-1}
+                        title={showConfirmPassword ? "הסתר סיסמה" : "הצג סיסמה"}
+                      >
+                        {showConfirmPassword ? <EyeOffIcon size={20} /> : <EyeIcon size={20} />}
+                      </button>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">הזן את אותה סיסמה שוב</p>
+                  </div>
+                )}
 
-            const doc = await db.collection('users').doc(currentUser.uid).get();
-            const cards = doc.data()?.creditCards || [];
+                {error && (
+                  <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 text-red-400 text-sm text-center animate-pulse">
+                    ⚠️ {error}
+                  </div>
+                )}
 
-            // Collect all transactions per card
-            const cardTransactions = {};
-            cards.forEach(card => cardTransactions[card] = []);
-            cardTransactions['העברה בנקאית'] = [];
-
-            // Go through all expenses and collect transactions
-            Object.entries(expensesData || {}).forEach(([categoryName, category]) => {
-                Object.entries(category).forEach(([subcatName, entries]) => {
-                    entries.forEach(entry => {
-                        if (entry.amount && parseFloat(entry.amount) > 0) {
-                            const transaction = {
-                                category: categoryName,
-                                subcategory: subcatName,
-                                description: entry.description || subcatName,
-                                amount: parseFloat(entry.amount)
-                            };
-                            
-                            // Check if this category IS "העברה בנקאית" (from obligations)
-                            if (categoryName === 'העברה בנקאית') {
-                                cardTransactions['העברה בנקאית'].push(transaction);
-                            }
-                            // Check if this category IS a credit card (from obligations)
-                            else if (cards.includes(categoryName)) {
-                                cardTransactions[categoryName].push(transaction);
-                            }
-                            // Or if the transaction has a card selected (from assets)
-                            else if (entry.card) {
-                                if (!cardTransactions[entry.card]) {
-                                    cardTransactions[entry.card] = [];
-                                }
-                                cardTransactions[entry.card].push(transaction);
-                            }
-                        }
-                    });
-                });
-            });
-
-            // Display transactions for each card
-            [...cards, 'העברה בנקאית'].forEach(card => {
-                const transactions = cardTransactions[card];
-                if (transactions && transactions.length > 0) {
-                    const total = transactions.reduce((sum, t) => sum + t.amount, 0);
-                    
-                    const cardDiv = document.createElement('div');
-                    cardDiv.className = 'card-transactions';
-                    
-                    // Add special styling for bank transfer
-                    if (card === 'העברה בנקאית') {
-                        cardDiv.style.borderLeft = '4px solid #27AE60';
-                    }
-                    
-                    // Add icon for bank transfer
-                    const cardIcon = card === 'העברה בנקאית' ? '🏦 ' : '';
-                    
-                    const headerDiv = document.createElement('div');
-                    headerDiv.className = 'card-transactions-header';
-                    
-                    // Restore collapsed state
-                    if (collapsedCardTransactions[card]) {
-                        headerDiv.classList.add('collapsed');
-                    }
-                    
-                    headerDiv.innerHTML = `
-                        <h4>
-                            <span class="collapse-icon">▼</span>
-                            ${cardIcon}${card}
-                        </h4>
-                        <span class="total">₪${total.toLocaleString()}</span>
-                    `;
-                    
-                    const itemsDiv = document.createElement('div');
-                    itemsDiv.className = 'card-transactions-items';
-                    
-                    // Restore collapsed state
-                    if (collapsedCardTransactions[card]) {
-                        itemsDiv.classList.add('collapsed');
-                    }
-                    
-                    transactions.forEach(transaction => {
-                        const itemDiv = document.createElement('div');
-                        itemDiv.className = 'transaction-item';
-                        itemDiv.innerHTML = `
-                            <div class="transaction-details">
-                                <div class="transaction-category">${transaction.category} • ${transaction.subcategory}</div>
-                                <div class="transaction-description">${transaction.description}</div>
-                            </div>
-                            <div class="transaction-amount">₪${transaction.amount.toLocaleString()}</div>
-                        `;
-                        itemsDiv.appendChild(itemDiv);
-                    });
-                    
-                    // Add click handler to toggle this specific card
-                    headerDiv.onclick = () => toggleCardTransactions(card, headerDiv, itemsDiv);
-                    
-                    cardDiv.appendChild(headerDiv);
-                    cardDiv.appendChild(itemsDiv);
-                    breakdownContainer.appendChild(cardDiv);
-                }
-            });
-        }
-
-        async function loadCardsSummary(expensesData) {
-            const cardsSummaryGrid = document.getElementById('cardsSummaryGrid');
-            cardsSummaryGrid.innerHTML = '';
-
-            const doc = await db.collection('users').doc(currentUser.uid).get();
-            const cards = doc.data()?.creditCards || [];
-
-            const cardTotals = {};
-            cards.forEach(card => cardTotals[card] = 0);
-            cardTotals['העברה בנקאית'] = 0; // Add bank transfer
-
-            // Calculate totals per card
-            Object.entries(expensesData || {}).forEach(([categoryName, category]) => {
-                Object.entries(category).forEach(([subcatName, entries]) => {
-                    entries.forEach(entry => {
-                        const amount = parseFloat(entry.amount) || 0;
-                        if (amount > 0) {
-                            // Check if this category IS a credit card (from obligations)
-                            // BUT exclude "העברה בנקאית" from obligations
-                            if (cards.includes(categoryName) && categoryName !== 'העברה בנקאית') {
-                                cardTotals[categoryName] += amount;
-                            }
-                            // Check if category IS "העברה בנקאית" from obligations
-                            else if (categoryName === 'העברה בנקאית') {
-                                cardTotals['העברה בנקאית'] += amount;
-                            }
-                            // Or if the transaction has a card selected (from assets)
-                            else if (entry.card) {
-                                if (!cardTotals.hasOwnProperty(entry.card)) {
-                                    cardTotals[entry.card] = 0;
-                                }
-                                cardTotals[entry.card] += amount;
-                            }
-                        }
-                    });
-                });
-            });
-
-            // Display credit cards summaries
-            cards.forEach(card => {
-                const cardItem = document.createElement('div');
-                cardItem.className = 'card-summary-item';
-                cardItem.innerHTML = `
-                    <h4>${card}</h4>
-                    <div class="card-amount">₪${cardTotals[card].toLocaleString()}</div>
-                `;
-                cardsSummaryGrid.appendChild(cardItem);
-            });
-
-            // Display bank transfer summary if there are any
-            if (cardTotals['העברה בנקאית'] > 0) {
-                const bankItem = document.createElement('div');
-                bankItem.className = 'card-summary-item bank-transfer';
-                bankItem.innerHTML = `
-                    <h4>🏦 העברה בנקאית</h4>
-                    <div class="card-amount">₪${cardTotals['העברה בנקאית'].toLocaleString()}</div>
-                `;
-                cardsSummaryGrid.appendChild(bankItem);
-            }
-        }
-
-        function calculateTotal(data) {
-            let total = 0;
-            Object.values(data || {}).forEach(category => {
-                Object.values(category).forEach(entries => {
-                    entries.forEach(entry => {
-                        total += parseFloat(entry.amount) || 0;
-                    });
-                });
-            });
-            return total;
-        }
-
-        async function loadIncome() {
-            const year = document.getElementById('incomeYear').value;
-            const month = document.getElementById('incomeMonth').value;
-            
-            // Clear collapsed state when changing date
-            collapsedCategories = {};
-            
-            const doc = await db.collection('users').doc(currentUser.uid)
-                .collection('data').doc(`${year}-${month}`).get();
-            
-            const data = doc.data()?.income || {};
-            
-            renderCategories('incomeCategories', categories.income, data, 'income', false, null);
-        }
-
-        async function loadExpenses(preserveState = true) {
-            const year = document.getElementById('expensesYear').value;
-            const month = document.getElementById('expensesMonth').value;
-            
-            // Clear collapsed state only when changing date (not when just updating data)
-            if (!preserveState) {
-                collapsedCategories = {};
-            }
-            
-            const doc = await db.collection('users').doc(currentUser.uid)
-                .collection('data').doc(`${year}-${month}`).get();
-            
-            const data = doc.data()?.expenses || {};
-            
-            const container = document.getElementById('expensesCategories');
-            container.innerHTML = '';
-            
-            // Obligations (credit cards - NO card selection needed)
-            const obligationsDiv = document.createElement('div');
-            obligationsDiv.innerHTML = '<h2 style="margin-bottom: 20px; color: var(--text-primary);">חובות</h2>';
-            renderCategories(obligationsDiv, categories.expenses.obligations, data, 'expenses', false, data);
-            container.appendChild(obligationsDiv);
-            
-            // Assets (need card selection or bank transfer)
-            const assetsDiv = document.createElement('div');
-            assetsDiv.innerHTML = '<h2 style="margin: 40px 0 20px; color: var(--text-primary);">נכסים</h2>';
-            renderCategories(assetsDiv, categories.expenses.assets, data, 'expenses', true, data);
-            container.appendChild(assetsDiv);
-        }
-
-        function renderCategories(containerId, cats, data, type, showCards, allExpensesData) {
-            const container = typeof containerId === 'string' ? 
-                document.getElementById(containerId) : containerId;
-            
-            if (typeof containerId === 'string') {
-                container.innerHTML = '';
-            }
-            
-            cats.forEach(cat => {
-                const categoryDiv = document.createElement('div');
-                categoryDiv.className = 'category';
+                <button
+                  type="submit"
+                  disabled={loading || (!isLogin && !isPasswordValid)}
+                  className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white py-4 rounded-xl font-bold text-lg hover:from-cyan-600 hover:to-blue-700 transition-all shadow-lg hover:shadow-cyan-500/50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 mt-6"
+                >
+                  {loading ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      <span>טוען...</span>
+                    </>
+                  ) : (
+                    <>
+                      {isLogin ? <LogOutIcon size={20} className="rotate-180" /> : <UserIcon size={20} />}
+                      <span>{isLogin ? 'התחבר לחשבון' : 'צור חשבון חדש'}</span>
+                    </>
+                  )}
+                </button>
                 
-                // Create unique key for this category
-                const categoryKey = `${type}-${cat.name}`;
-                
-                // Calculate total for this card (from obligations + assets)
-                let cardTotal = 0;
-                // Only calculate for credit cards, not for bank transfer
-                if (allExpensesData && cat.name && cat.name !== 'העברה בנקאית') {
-                    // Calculate from current category (obligations)
-                    Object.values(data[cat.name] || {}).forEach(entries => {
-                        entries.forEach(entry => {
-                            cardTotal += parseFloat(entry.amount) || 0;
-                        });
-                    });
-                    
-                    // Add expenses from assets that are linked to this card
-                    Object.entries(allExpensesData).forEach(([categoryName, category]) => {
-                        Object.entries(category).forEach(([subcatName, entries]) => {
-                            entries.forEach(entry => {
-                                if (entry.card === cat.name) {
-                                    cardTotal += parseFloat(entry.amount) || 0;
-                                }
-                            });
-                        });
-                    });
-                }
-                
-                const headerDiv = document.createElement('div');
-                headerDiv.className = 'category-header';
-                headerDiv.tabIndex = -1; // Prevent keyboard navigation to this element
-                
-                // Add special styling for bank transfer
-                if (cat.name === 'העברה בנקאית') {
-                    headerDiv.classList.add('bank-transfer-category');
-                }
-                
-                // Restore collapsed state if it was collapsed before
-                if (collapsedCategories[categoryKey]) {
-                    headerDiv.classList.add('collapsed');
-                }
-                
-                let totalDisplay = '';
-                // Show total only for credit cards, not for bank transfer
-                if (cardTotal > 0 && type === 'expenses' && !showCards && cat.name !== 'העברה בנקאית') {
-                    totalDisplay = `<span class="card-total">₪${cardTotal.toLocaleString()}</span>`;
-                }
-                
-                // Add icon for bank transfer
-                const categoryIcon = cat.name === 'העברה בנקאית' ? '🏦 ' : '';
-                
-                headerDiv.innerHTML = `
-                    <h3>
-                        <span class="collapse-icon">▼</span>
-                        ${categoryIcon}${cat.name}
-                    </h3>
-                    ${totalDisplay}
-                `;
-                headerDiv.onclick = (e) => handleCategoryClick(e, headerDiv, categoryKey);
-                
-                const contentDiv = document.createElement('div');
-                contentDiv.className = 'category-content';
-                
-                // Restore collapsed state for content as well
-                if (collapsedCategories[categoryKey]) {
-                    contentDiv.classList.add('collapsed');
-                }
-                
-                cat.subcategories.forEach(subcat => {
-                    const subcatDiv = document.createElement('div');
-                    subcatDiv.className = 'subcategory';
-                    subcatDiv.innerHTML = `<h4>${subcat}</h4>`;
-                    
-                    const entries = data[cat.name]?.[subcat] || [{ description: '', amount: '', card: '' }];
-                    
-                    entries.forEach((entry, index) => {
-                        const entryRow = createEntryRow(entry, type, cat.name, subcat, index, showCards);
-                        subcatDiv.appendChild(entryRow);
-                    });
-                    
-                    const addBtn = document.createElement('button');
-                    addBtn.className = 'add-entry';
-                    addBtn.textContent = '+ הוסף רשומה';
-                    addBtn.onclick = () => addEntry(type, cat.name, subcat, showCards);
-                    subcatDiv.appendChild(addBtn);
-                    
-                    contentDiv.appendChild(subcatDiv);
-                });
-                
-                categoryDiv.appendChild(headerDiv);
-                categoryDiv.appendChild(contentDiv);
-                container.appendChild(categoryDiv);
-            });
+                {!isLogin && !isPasswordValid && password.length > 0 && (
+                  <div className="mt-2 text-center">
+                    <p className="text-xs text-yellow-400 flex items-center justify-center gap-2">
+                      <span>⚠️</span>
+                      <span>הסיסמה חייבת לעמוד בכל הדרישות כדי להירשם</span>
+                    </p>
+                  </div>
+                )}
+              </form>
+
+              <div className="mt-6 text-center text-sm text-gray-400">
+                {isLogin ? (
+                  <p>
+                    אין לך חשבון?{' '}
+                    <button onClick={() => { setIsLogin(false); setError(''); setPassword(''); setEmail(''); }} className="text-cyan-400 hover:text-cyan-300 font-semibold underline">
+                      הירשם עכשיו
+                    </button>
+                  </p>
+                ) : (
+                  <p>
+                    כבר יש לך חשבון?{' '}
+                    <button onClick={() => { setIsLogin(true); setError(''); setPassword(''); setConfirmPassword(''); }} className="text-cyan-400 hover:text-cyan-300 font-semibold underline">
+                      התחבר
+                    </button>
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="text-center mt-8 text-xs text-gray-500">
+              <p className="flex items-center justify-center gap-2 mb-2">
+                <LockIcon size={14} />
+                מאובטח עם Firebase Authentication
+              </p>
+              <p className="text-xs text-gray-600">
+                💡 תישאר מחובר גם לאחר סגירת הדפדפן
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const App = () => {
+      console.log('📱 App component rendering...');
+      
+      const [userId, setUserId] = useState(null);
+      const [userEmail, setUserEmail] = useState('');
+      const [isAuthenticated, setIsAuthenticated] = useState(false);
+      const [isInitializing, setIsInitializing] = useState(true);
+      const [firebaseReady, setFirebaseReady] = useState(false);
+      const [dataLoaded, setDataLoaded] = useState(false);
+      const [accounts, setAccounts] = useState([]);
+      const [trades, setTrades] = useState([]);
+      const [selectedAccount, setSelectedAccount] = useState(null);
+      const [currentView, setCurrentView] = useState('accounts');
+      const [showAccountModal, setShowAccountModal] = useState(false);
+      const [showTradeModal, setShowTradeModal] = useState(false);
+      const [showPayoutModal, setShowPayoutModal] = useState(false);
+      const [editingAccount, setEditingAccount] = useState(null);
+      const [editingTrade, setEditingTrade] = useState(null);
+      const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+      const [hoveredDay, setHoveredDay] = useState(null);
+      const hoverTimeoutRef = useRef(null);
+      
+      const [newAccount, setNewAccount] = useState({
+        name: '', type: 'EVAL', initialBalance: 0, currentBalance: 0, maxLossLimit: 0
+      });
+
+      const [newTrade, setNewTrade] = useState({
+        date: new Date().toISOString().split('T')[0],
+        time: '09:30',
+        symbol: 'NQ',
+        direction: 'LONG',
+        contracts: 1,
+        entryPrice: 0,
+        exitPrice: 0,
+        pnl: 0,
+        strategy: '',
+        notes: '',
+        imageUrl: '',
+        accountId: null
+      });
+
+      const [payoutData, setPayoutData] = useState({
+        amount: 0,
+        date: new Date().toISOString().split('T')[0],
+        notes: ''
+      });
+
+      // Listen for Firebase modules ready
+      useEffect(() => {
+        const handleFirebaseReady = () => {
+          setFirebaseReady(true);
+          console.log('✅ Firebase modules ready');
+        };
+
+        if (window.firebaseModules) {
+          setFirebaseReady(true);
+        } else {
+          window.addEventListener('firebaseModulesReady', handleFirebaseReady);
         }
 
-        function toggleCategory(header, categoryKey) {
-            header.classList.toggle('collapsed');
-            header.nextElementSibling.classList.toggle('collapsed');
-            
-            // Save the state
-            if (categoryKey) {
-                collapsedCategories[categoryKey] = header.classList.contains('collapsed');
-            }
-        }
+        return () => window.removeEventListener('firebaseModulesReady', handleFirebaseReady);
+      }, []);
 
-        function handleCategoryClick(event, header, categoryKey) {
-            // Only toggle if it's an actual click (not Tab/Enter key)
-            if (event.type === 'click' && event.target.closest('.category-header')) {
-                // Prevent if clicking on input fields inside
-                if (!event.target.closest('input, select, button')) {
-                    toggleCategory(header, categoryKey);
-                }
-            }
-        }
+      // Authentication state listener
+      useEffect(() => {
+        if (!firebaseReady) return;
 
-        function toggleTransactionsBreakdown() {
-            const header = document.querySelector('.transactions-header');
-            const content = document.getElementById('transactionsBreakdown');
-            const icon = document.getElementById('transactionsCollapseIcon');
-            
-            transactionsCollapsed = !transactionsCollapsed;
-            
-            if (transactionsCollapsed) {
-                header.classList.add('collapsed');
-                content.classList.add('collapsed');
-            } else {
-                header.classList.remove('collapsed');
-                content.classList.remove('collapsed');
-            }
-        }
+        const auth = window.firebaseAuth;
+        const { onAuthStateChanged } = window.firebaseModules;
 
-        function toggleCardTransactions(cardName, headerElement, itemsElement) {
-            collapsedCardTransactions[cardName] = !collapsedCardTransactions[cardName];
-            
-            if (collapsedCardTransactions[cardName]) {
-                headerElement.classList.add('collapsed');
-                itemsElement.classList.add('collapsed');
-            } else {
-                headerElement.classList.remove('collapsed');
-                itemsElement.classList.remove('collapsed');
-            }
-        }
-
-        function createEntryRow(entry, type, catName, subcatName, index, showCards) {
-            const row = document.createElement('div');
-            row.className = 'entry-row';
-            
-            let cardSelectHTML = '';
-            if (showCards) {
-                cardSelectHTML = `
-                    <select class="entry-card-select" 
-                            onchange="saveData('${type}', '${catName}', '${subcatName}', ${index}, this.parentElement)">
-                        <option value="">בחר אמצעי תשלום</option>
-                        <option value="העברה בנקאית" ${entry.card === 'העברה בנקאית' ? 'selected' : ''}>העברה בנקאית</option>
-                        ${categories.expenses.obligations.map(card => 
-                            `<option value="${card.name}" ${entry.card === card.name ? 'selected' : ''}>${card.name}</option>`
-                        ).join('')}
-                    </select>
-                `;
-            }
-            
-            row.innerHTML = `
-                <input type="text" class="entry-description" placeholder="תיאור" value="${entry.description || ''}"
-                       onchange="saveData('${type}', '${catName}', '${subcatName}', ${index}, this.parentElement)">
-                <input type="number" class="entry-amount" placeholder="סכום" value="${entry.amount || ''}"
-                       onchange="saveData('${type}', '${catName}', '${subcatName}', ${index}, this.parentElement)">
-                ${cardSelectHTML}
-                <button class="remove-entry" onclick="removeEntry('${type}', '${catName}', '${subcatName}', ${index})">🗑️</button>
-            `;
-            
-            return row;
-        }
-
-        async function addEntry(type, catName, subcatName, showCards) {
-            setSavingStatus();
-            
-            const year = document.getElementById(`${type === 'income' ? 'income' : 'expenses'}Year`).value;
-            const month = document.getElementById(`${type === 'income' ? 'income' : 'expenses'}Month`).value;
-            
-            const docRef = db.collection('users').doc(currentUser.uid)
-                .collection('data').doc(`${year}-${month}`);
-            
-            const doc = await docRef.get();
-            const data = doc.data() || {};
-            
-            if (!data[type]) data[type] = {};
-            if (!data[type][catName]) data[type][catName] = {};
-            if (!data[type][catName][subcatName]) data[type][catName][subcatName] = [];
-            
-            data[type][catName][subcatName].push({ description: '', amount: '', card: '' });
-            
-            await docRef.set(data);
-            
-            // Refresh displays
-            if (type === 'income') {
-                await loadIncome();
-            } else {
-                await loadExpenses();
-            }
-            await loadDashboard();
-            
-            setSyncedStatus();
-        }
-
-        async function removeEntry(type, catName, subcatName, index) {
-            setSavingStatus();
-            
-            const year = document.getElementById(`${type === 'income' ? 'income' : 'expenses'}Year`).value;
-            const month = document.getElementById(`${type === 'income' ? 'income' : 'expenses'}Month`).value;
-            
-            const docRef = db.collection('users').doc(currentUser.uid)
-                .collection('data').doc(`${year}-${month}`);
-            
-            const doc = await docRef.get();
-            const data = doc.data();
-            
-            if (data[type][catName][subcatName].length > 1) {
-                data[type][catName][subcatName].splice(index, 1);
-            } else {
-                data[type][catName][subcatName] = [{ description: '', amount: '', card: '' }];
-            }
-            
-            await docRef.set(data);
-            
-            // Refresh displays
-            if (type === 'income') {
-                await loadIncome();
-            } else {
-                await loadExpenses();
-            }
-            await loadDashboard();
-            
-            setSyncedStatus();
-        }
-
-        async function saveData(type, catName, subcatName, index, row) {
-            setSavingStatus();
-            
-            const description = row.querySelector('.entry-description').value;
-            const amount = row.querySelector('.entry-amount').value;
-            const cardSelect = row.querySelector('.entry-card-select');
-            const card = cardSelect ? cardSelect.value : '';
-            
-            const year = document.getElementById(`${type === 'income' ? 'income' : 'expenses'}Year`).value;
-            const month = document.getElementById(`${type === 'income' ? 'income' : 'expenses'}Month`).value;
-            
-            const docRef = db.collection('users').doc(currentUser.uid)
-                .collection('data').doc(`${year}-${month}`);
-            
-            const doc = await docRef.get();
-            const data = doc.data() || {};
-            
-            if (!data[type]) data[type] = {};
-            if (!data[type][catName]) data[type][catName] = {};
-            if (!data[type][catName][subcatName]) data[type][catName][subcatName] = [];
-            
-            data[type][catName][subcatName][index] = { description, amount, card };
-            
-            await docRef.set(data);
-            
-            // Refresh all displays
-            await loadDashboard();
-            if (type === 'expenses') {
-                await loadExpenses();
-            }
-            
-            setSyncedStatus();
-        }
-
-        // Scroll to top button
-        window.addEventListener('scroll', () => {
-            const scrollBtn = document.querySelector('.scroll-top');
-            if (window.pageYOffset > 300) {
-                scrollBtn.classList.add('visible');
-            } else {
-                scrollBtn.classList.remove('visible');
-            }
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+          if (user) {
+            setUserId(user.uid);
+            setUserEmail(user.email);
+            setIsAuthenticated(true);
+            setIsInitializing(false);
+            console.log('✅ User authenticated:', user.email);
+          } else {
+            setUserId(null);
+            setUserEmail('');
+            setIsAuthenticated(false);
+            setDataLoaded(false);
+            setIsInitializing(false);
+            console.log('❌ User not authenticated - showing login screen');
+          }
         });
 
-        function scrollToTop() {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        }
+        return () => unsubscribe();
+      }, [firebaseReady]);
 
-        // Close modal on outside click
-        window.onclick = function(event) {
-            const modal = document.getElementById('editCardModal');
-            if (event.target === modal) {
-                closeEditCardModal();
+      // Load data from Firestore when user is authenticated
+      useEffect(() => {
+        if (!firebaseReady || !userId || !isAuthenticated) return;
+
+        console.log('📥 Loading from Firestore...');
+        const { collection, getDocs } = window.firebaseModules;
+        const db = window.firebaseDB;
+
+        let accountsLoaded = false;
+        let tradesLoaded = false;
+
+        const checkBothLoaded = () => {
+          if (accountsLoaded && tradesLoaded) {
+            setDataLoaded(true);
+            console.log('✅ All data loaded');
+          }
+        };
+
+        // Load accounts
+        getDocs(collection(db, `users/${userId}/accounts`))
+          .then((snapshot) => {
+            const accountsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setAccounts(accountsData);
+            console.log('✅ Loaded', accountsData.length, 'accounts from Firestore');
+          })
+          .catch((error) => {
+            console.error('❌ Error loading accounts:', error);
+            // Fallback to localStorage
+            const saved = localStorage.getItem('tradingData');
+            if (saved) {
+              const data = JSON.parse(saved);
+              setAccounts(data.accounts || []);
             }
+          })
+          .finally(() => {
+            accountsLoaded = true;
+            checkBothLoaded();
+          });
+
+        // Load trades
+        getDocs(collection(db, `users/${userId}/trades`))
+          .then((snapshot) => {
+            const tradesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setTrades(tradesData);
+            console.log('✅ Loaded', tradesData.length, 'trades from Firestore');
+          })
+          .catch((error) => {
+            console.error('❌ Error loading trades:', error);
+            // Fallback to localStorage
+            const saved = localStorage.getItem('tradingData');
+            if (saved) {
+              const data = JSON.parse(saved);
+              setTrades(data.trades || []);
+            }
+          })
+          .finally(() => {
+            tradesLoaded = true;
+            checkBothLoaded();
+          });
+      }, [firebaseReady, userId, isAuthenticated]);
+
+      // Save to both Firestore and localStorage
+      useEffect(() => {
+        if (!firebaseReady || !userId) return;
+        if (accounts.length === 0 && trades.length === 0) return;
+
+        console.log('💾 Saving to Firestore...');
+        
+        // Save to localStorage as backup
+        localStorage.setItem('tradingData', JSON.stringify({ accounts, trades }));
+        
+        // Note: Individual saves happen in add/update/delete functions
+        // This effect is just for the initial sync
+      }, [accounts, trades, firebaseReady, userId]);
+
+      // Remove loading screen when initialization is complete
+      useEffect(() => {
+        // Only remove loading screen after:
+        // 1. Firebase is ready AND initialization is complete
+        // 2. Either data is loaded (user authenticated) OR user is not authenticated
+        if (!isInitializing && firebaseReady && (dataLoaded || !isAuthenticated)) {
+          console.log('🎉 Initialization complete - removing loading screen...');
+          console.log('   - isAuthenticated:', isAuthenticated);
+          console.log('   - dataLoaded:', dataLoaded);
+          
+          // Use requestAnimationFrame to ensure React has rendered
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              setTimeout(() => {
+                const loadingScreen = document.getElementById('loading-screen');
+                if (loadingScreen) {
+                  loadingScreen.style.opacity = '0';
+                  loadingScreen.style.transition = 'opacity 0.5s ease-out';
+                  setTimeout(() => {
+                    loadingScreen.remove();
+                    console.log('✅ Loading screen removed');
+                  }, 500);
+                }
+              }, 300); // Increased delay to ensure AuthScreen is rendered
+            });
+          });
         }
-    </script>
+      }, [isInitializing, dataLoaded, isAuthenticated, firebaseReady]);
+
+      // Safety timeout - remove loading screen after 10 seconds no matter what
+      useEffect(() => {
+        const timeout = setTimeout(() => {
+          const loadingScreen = document.getElementById('loading-screen');
+          if (loadingScreen) {
+            console.log('⚠️ Safety timeout - removing loading screen');
+            loadingScreen.remove();
+          }
+        }, 10000);
+        return () => clearTimeout(timeout);
+      }, []);
+
+      useEffect(() => {
+        return () => {
+          if (hoverTimeoutRef.current) {
+            clearTimeout(hoverTimeoutRef.current);
+          }
+        };
+      }, []);
+
+      // Firestore Helper Functions
+      const saveAccountToFirestore = async (account) => {
+        if (!firebaseReady || !userId) return;
+        try {
+          const { doc, setDoc } = window.firebaseModules;
+          const db = window.firebaseDB;
+          await setDoc(doc(db, `users/${userId}/accounts`, account.id.toString()), account);
+          console.log('✅ Account saved to Firestore:', account.name);
+        } catch (error) {
+          console.error('❌ Error saving account:', error);
+        }
+      };
+
+      const deleteAccountFromFirestore = async (accountId) => {
+        if (!firebaseReady || !userId) return;
+        try {
+          const { doc, deleteDoc } = window.firebaseModules;
+          const db = window.firebaseDB;
+          await deleteDoc(doc(db, `users/${userId}/accounts`, accountId.toString()));
+          console.log('✅ Account deleted from Firestore');
+        } catch (error) {
+          console.error('❌ Error deleting account:', error);
+        }
+      };
+
+      const saveTradeToFirestore = async (trade) => {
+        if (!firebaseReady || !userId) return;
+        try {
+          const { doc, setDoc } = window.firebaseModules;
+          const db = window.firebaseDB;
+          await setDoc(doc(db, `users/${userId}/trades`, trade.id.toString()), trade);
+          console.log('✅ Trade saved to Firestore');
+        } catch (error) {
+          console.error('❌ Error saving trade:', error);
+        }
+      };
+
+      const deleteTradeFromFirestore = async (tradeId) => {
+        if (!firebaseReady || !userId) return;
+        try {
+          const { doc, deleteDoc } = window.firebaseModules;
+          const db = window.firebaseDB;
+          await deleteDoc(doc(db, `users/${userId}/trades`, tradeId.toString()));
+          console.log('✅ Trade deleted from Firestore');
+        } catch (error) {
+          console.error('❌ Error deleting trade:', error);
+        }
+      };
+
+      const handleDayMouseEnter = (day) => {
+        if (hoverTimeoutRef.current) {
+          clearTimeout(hoverTimeoutRef.current);
+        }
+        setHoveredDay(day);
+      };
+
+      const handleDayMouseLeave = () => {
+        hoverTimeoutRef.current = setTimeout(() => {
+          setHoveredDay(null);
+        }, 300); // 300ms delay to allow moving to popup
+      };
+
+      const handlePopupMouseEnter = () => {
+        if (hoverTimeoutRef.current) {
+          clearTimeout(hoverTimeoutRef.current);
+        }
+      };
+
+      const handlePopupMouseLeave = () => {
+        setHoveredDay(null);
+      };
+
+      const getSymbolMultiplier = (symbol) => {
+        const m = { 'NQ': 20, 'ES': 50, 'MNQ': 2, 'MES': 5 };
+        return m[symbol] || 1;
+      };
+
+      const calculatePnL = (trade) => {
+        const mult = getSymbolMultiplier(trade.symbol);
+        const diff = trade.direction === 'LONG' 
+          ? (trade.exitPrice - trade.entryPrice) 
+          : (trade.entryPrice - trade.exitPrice);
+        return diff * mult * trade.contracts;
+      };
+
+      const addAccount = () => {
+        if (!newAccount.name || newAccount.initialBalance <= 0) {
+          alert('נא למלא את כל השדות');
+          return;
+        }
+        const acc = {
+          ...newAccount,
+          id: Date.now(),
+          currentBalance: newAccount.initialBalance,
+          payouts: []
+        };
+        setAccounts([...accounts, acc]);
+        saveAccountToFirestore(acc); // Save to Firebase
+        setNewAccount({ name: '', type: 'EVAL', initialBalance: 0, currentBalance: 0, maxLossLimit: 0 });
+        setShowAccountModal(false);
+        console.log('✅ Account added:', acc.name);
+      };
+
+      const updateAccount = () => {
+        setAccounts(accounts.map(a => a.id === editingAccount.id ? editingAccount : a));
+        saveAccountToFirestore(editingAccount); // Save to Firebase
+        setEditingAccount(null);
+        setShowAccountModal(false);
+      };
+
+      const deleteAccount = (id) => {
+        if (confirm('למחוק תיק?')) {
+          setAccounts(accounts.filter(a => a.id !== id));
+          setTrades(trades.filter(t => t.accountId !== id));
+          deleteAccountFromFirestore(id); // Delete from Firebase
+          if (selectedAccount?.id === id) setSelectedAccount(null);
+        }
+      };
+
+      const addTrade = () => {
+        if (!newTrade.accountId) {
+          alert('בחר תיק תחילה');
+          return;
+        }
+        
+        const pnl = calculatePnL(newTrade);
+        const account = accounts.find(a => a.id === newTrade.accountId);
+        
+        // Check MLL for EVAL accounts
+        if (account.type === 'EVAL' && account.maxLossLimit > 0 && pnl < 0) {
+          const today = newTrade.date;
+          const todayTrades = trades.filter(t => t.accountId === newTrade.accountId && t.date === today);
+          const todayLoss = todayTrades.reduce((sum, t) => sum + (t.pnl < 0 ? t.pnl : 0), 0);
+          const totalLoss = todayLoss + pnl;
+          
+          if (Math.abs(totalLoss) > account.maxLossLimit) {
+            const proceed = confirm(
+              `⚠️ אזהרה: MLL\n\n` +
+              `הפסד יומי נוכחי: $${Math.abs(todayLoss).toFixed(2)}\n` +
+              `הפסד בעסקה זו: $${Math.abs(pnl).toFixed(2)}\n` +
+              `סה"כ הפסד: $${Math.abs(totalLoss).toFixed(2)}\n\n` +
+              `MLL (Maximum Loss Limit): $${account.maxLossLimit}\n\n` +
+              `⚠️ You have exceeded the Maximum Loss Limit!\n` +
+              `האם להמשיך בכל זאת?`
+            );
+            if (!proceed) return;
+          }
+        }
+        
+        const trade = { ...newTrade, id: Date.now(), pnl };
+        setTrades([...trades, trade]);
+        saveTradeToFirestore(trade); // Save to Firebase
+        
+        const updatedAccounts = accounts.map(a => 
+          a.id === newTrade.accountId 
+            ? { ...a, currentBalance: a.currentBalance + pnl }
+            : a
+        );
+        setAccounts(updatedAccounts);
+        const updatedAccount = updatedAccounts.find(a => a.id === newTrade.accountId);
+        if (updatedAccount) saveAccountToFirestore(updatedAccount); // Update balance in Firebase
+        
+        setNewTrade({
+          ...newTrade,
+          date: new Date().toISOString().split('T')[0],
+          entryPrice: 0,
+          exitPrice: 0,
+          notes: '',
+          strategy: '',
+          imageUrl: ''
+        });
+        setShowTradeModal(false);
+        console.log('✅ Trade added');
+      };
+
+      const updateTrade = () => {
+        const old = trades.find(t => t.id === editingTrade.id);
+        const newPnl = calculatePnL(editingTrade);
+        const updatedTrade = { ...editingTrade, pnl: newPnl };
+        setTrades(trades.map(t => t.id === editingTrade.id ? updatedTrade : t));
+        saveTradeToFirestore(updatedTrade); // Update in Firebase
+        
+        const updatedAccounts = accounts.map(a => 
+          a.id === editingTrade.accountId 
+            ? { ...a, currentBalance: a.currentBalance - old.pnl + newPnl }
+            : a
+        );
+        setAccounts(updatedAccounts);
+        const updatedAccount = updatedAccounts.find(a => a.id === editingTrade.accountId);
+        if (updatedAccount) saveAccountToFirestore(updatedAccount); // Update balance in Firebase
+        
+        setEditingTrade(null);
+        setShowTradeModal(false);
+      };
+
+      const deleteTrade = (id) => {
+        if (confirm('למחוק עסקה?')) {
+          const trade = trades.find(t => t.id === id);
+          setTrades(trades.filter(t => t.id !== id));
+          deleteTradeFromFirestore(id); // Delete from Firebase
+          
+          const updatedAccounts = accounts.map(a => 
+            a.id === trade.accountId 
+              ? { ...a, currentBalance: a.currentBalance - trade.pnl }
+              : a
+          );
+          setAccounts(updatedAccounts);
+          const updatedAccount = updatedAccounts.find(a => a.id === trade.accountId);
+          if (updatedAccount) saveAccountToFirestore(updatedAccount); // Update balance in Firebase
+        }
+      };
+
+      const processPayout = () => {
+        const amount = parseFloat(payoutData.amount);
+        if (amount <= 0 || amount > selectedAccount.currentBalance) {
+          alert('סכום לא תקין');
+          return;
+        }
+        const payout = { id: Date.now(), amount, date: payoutData.date, notes: payoutData.notes };
+        const updatedAccounts = accounts.map(a => 
+          a.id === selectedAccount.id 
+            ? {
+                ...a,
+                currentBalance: a.currentBalance - amount,
+                payouts: [...(a.payouts || []), payout]
+              }
+            : a
+        );
+        setAccounts(updatedAccounts);
+        const updatedAccount = updatedAccounts.find(a => a.id === selectedAccount.id);
+        if (updatedAccount) saveAccountToFirestore(updatedAccount); // Save payout to Firebase
+        
+        setPayoutData({ amount: 0, date: new Date().toISOString().split('T')[0], notes: '' });
+        setShowPayoutModal(false);
+      };
+
+      const getAccountTrades = (accountId) => trades.filter(t => t.accountId === accountId);
+
+      const getTradesByDate = (date) => {
+        if (!selectedAccount) return [];
+        return trades.filter(t => t.accountId === selectedAccount.id && t.date === date);
+      };
+
+      const generateCalendarDays = () => {
+        const year = parseInt(selectedDate.split('-')[0]);
+        const month = parseInt(selectedDate.split('-')[1]);
+        const firstDay = new Date(year, month - 1, 1);
+        const lastDay = new Date(year, month, 0);
+        const daysInMonth = lastDay.getDate();
+        const startingDayOfWeek = firstDay.getDay();
+        
+        const days = [];
+        for (let i = 0; i < startingDayOfWeek; i++) days.push(null);
+        
+        for (let day = 1; day <= daysInMonth; day++) {
+          const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+          const dayTrades = getTradesByDate(dateStr);
+          const dayPnL = dayTrades.reduce((s, t) => s + t.pnl, 0);
+          
+          days.push({
+            day, date: dateStr, trades: dayTrades,
+            tradesCount: dayTrades.length, pnl: dayPnL
+          });
+        }
+        return days;
+      };
+
+      const calculateStats = (tradesArr) => {
+        if (tradesArr.length === 0) {
+          return { totalTrades: 0, winners: 0, losers: 0, winRate: 0, totalPnL: 0 };
+        }
+        const winners = tradesArr.filter(t => t.pnl > 0);
+        const losers = tradesArr.filter(t => t.pnl < 0);
+        const totalPnL = tradesArr.reduce((s, t) => s + t.pnl, 0);
+        return {
+          totalTrades: tradesArr.length,
+          winners: winners.length,
+          losers: losers.length,
+          winRate: (winners.length / tradesArr.length) * 100,
+          totalPnL
+        };
+      };
+
+      const handleImageUpload = (e, isEditing = false) => {
+        const file = e.target.files[0];
+        if (file) {
+          if (file.size > 5 * 1024 * 1024) {
+            alert('התמונה גדולה מדי. מקסימום 5MB');
+            return;
+          }
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            if (isEditing) {
+              setEditingTrade({ ...editingTrade, imageUrl: reader.result });
+            } else {
+              setNewTrade({ ...newTrade, imageUrl: reader.result });
+            }
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+
+      const handleLogout = async () => {
+        if (confirm('האם אתה בטוח שברצונך להתנתק?')) {
+          try {
+            const auth = window.firebaseAuth;
+            const { signOut } = window.firebaseModules;
+            await signOut(auth);
+            setAccounts([]);
+            setTrades([]);
+            setSelectedAccount(null);
+            console.log('✅ Logged out');
+          } catch (error) {
+            console.error('❌ Logout error:', error);
+            alert('שגיאה בהתנתקות');
+          }
+        }
+      };
+
+      console.log('✅ App rendered successfully');
+      console.log('   - isInitializing:', isInitializing);
+      console.log('   - isAuthenticated:', isAuthenticated);
+      console.log('   - firebaseReady:', firebaseReady);
+
+      // Show nothing while initializing - loading screen will show
+      if (isInitializing) {
+        console.log('⏳ Still initializing...');
+        return null;
+      }
+
+      // Show AuthScreen if not authenticated
+      if (!isAuthenticated) {
+        console.log('🔓 User not authenticated - showing AuthScreen');
+        return <AuthScreen />;
+      }
+
+      console.log('🔒 User authenticated - showing main app');
+
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 p-4">
+          <div className="max-w-7xl mx-auto">
+            {/* Header */}
+            <div className="bg-gray-900/90 backdrop-blur-xl rounded-2xl p-6 border border-cyan-500/30 mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-cyan-500 rounded-xl">
+                    <ChartIcon size={32} className="text-white" />
+                  </div>
+                  <div>
+                    <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+                      יומן מסחר
+                    </h1>
+                    <p className="text-sm text-cyan-400 mt-1 flex items-center gap-2">
+                      <UserIcon size={14} />
+                      {userEmail}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="p-3 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 rounded-xl transition-all group"
+                  title="התנתק"
+                >
+                  <LogOutIcon size={24} className="text-red-400 group-hover:text-red-300" />
+                </button>
+              </div>
+              
+              <div className="flex gap-3 mb-4">
+                <button
+                  onClick={() => setCurrentView('dashboard')}
+                  className={`px-6 py-3 rounded-xl font-semibold transition-all ${
+                    currentView === 'dashboard' 
+                      ? 'bg-cyan-500 text-white' 
+                      : 'bg-gray-800 text-gray-300'
+                  }`}
+                >
+                  לוח בקרה
+                </button>
+                <button
+                  onClick={() => setCurrentView('calendar')}
+                  className={`px-6 py-3 rounded-xl font-semibold transition-all ${
+                    currentView === 'calendar' 
+                      ? 'bg-cyan-500 text-white' 
+                      : 'bg-gray-800 text-gray-300'
+                  }`}
+                >
+                  לוח שנה
+                </button>
+                <button
+                  onClick={() => setCurrentView('accounts')}
+                  className={`px-6 py-3 rounded-xl font-semibold transition-all ${
+                    currentView === 'accounts' 
+                      ? 'bg-cyan-500 text-white' 
+                      : 'bg-gray-800 text-gray-300'
+                  }`}
+                >
+                  ניהול תיקים
+                </button>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => { setShowAccountModal(true); setEditingAccount(null); }}
+                  className="px-6 py-3 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 font-semibold flex items-center gap-2"
+                >
+                  <PlusIcon size={20} />
+                  תיק חדש
+                </button>
+                <button
+                  onClick={() => {
+                    if (!selectedAccount) { alert('בחר תיק תחילה'); return; }
+                    setNewTrade({ ...newTrade, accountId: selectedAccount.id });
+                    setShowTradeModal(true);
+                  }}
+                  className="px-6 py-3 bg-cyan-500 text-white rounded-xl hover:bg-cyan-600 font-semibold flex items-center gap-2"
+                >
+                  <PlusIcon size={20} />
+                  עסקה חדשה
+                </button>
+              </div>
+
+              {selectedAccount && (
+                <div className="mt-4 p-4 bg-cyan-500/10 rounded-xl border border-cyan-500/30">
+                  <span className="text-gray-300">תיק נבחר: </span>
+                  <span className="text-cyan-400 font-bold">{selectedAccount.name}</span>
+                  <span className="mx-3 text-gray-600">|</span>
+                  <span className="text-gray-300">יתרה: </span>
+                  <span className="text-cyan-400 font-bold">${selectedAccount.currentBalance.toLocaleString()}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Main Content */}
+            {currentView === 'dashboard' && (
+              <div>
+                {!selectedAccount ? (
+                  <div className="text-center py-20 text-white">
+                    <SettingsIcon size={64} className="mx-auto mb-4 text-cyan-400" />
+                    <h2 className="text-3xl font-bold mb-4">בחר תיק כדי להתחיל</h2>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {/* Account Selector */}
+                    <div className="bg-gray-900/90 backdrop-blur-xl rounded-xl p-4 border border-cyan-500/30">
+                      <div className="flex justify-between items-center mb-2">
+                        <label className="text-sm text-gray-400 flex items-center gap-2">
+                          <SettingsIcon size={16} />
+                          תיק פעיל
+                        </label>
+                        <button
+                          onClick={() => setCurrentView('accounts')}
+                          className="text-xs text-cyan-400 hover:text-cyan-300 underline flex items-center gap-1"
+                        >
+                          ניהול תיקים →
+                        </button>
+                      </div>
+                      <div className="relative">
+                        <select
+                          value={selectedAccount.id}
+                          onChange={(e) => setSelectedAccount(accounts.find(a => a.id === parseInt(e.target.value)))}
+                          className="w-full px-4 py-3 bg-gray-800 border border-cyan-500/30 rounded-lg text-gray-200 font-semibold text-lg appearance-none cursor-pointer hover:border-cyan-500/50 transition-colors"
+                        >
+                          {accounts.map(acc => (
+                            <option key={acc.id} value={acc.id}>
+                              {acc.name} ({acc.type}) - ${acc.currentBalance.toLocaleString()}
+                            </option>
+                          ))}
+                        </select>
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" className="text-cyan-400">
+                            <path d="M6 8l4 4 4-4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                          selectedAccount.type === 'EVAL' ? 'bg-yellow-500/20 text-yellow-300' :
+                          selectedAccount.type === 'EXPRESS' ? 'bg-purple-500/20 text-purple-300' :
+                          'bg-emerald-500/20 text-emerald-300'
+                        }`}>
+                          {selectedAccount.type}
+                        </span>
+                        <span className="text-sm text-gray-400">
+                          יתרה: <span className="font-bold text-cyan-400">${selectedAccount.currentBalance.toLocaleString()}</span>
+                        </span>
+                        <span className="text-sm text-gray-400">•</span>
+                        <span className="text-sm text-gray-400">
+                          {getAccountTrades(selectedAccount.id).length} עסקאות
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Stats */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                      {(() => {
+                        const stats = calculateStats(getAccountTrades(selectedAccount.id));
+                        return (
+                          <>
+                            <div className="bg-gray-900/90 backdrop-blur-xl rounded-xl p-4 border border-cyan-500/20">
+                              <p className="text-gray-400 text-sm mb-1">סה"כ עסקאות</p>
+                              <p className="text-3xl font-bold text-gray-100">{stats.totalTrades}</p>
+                            </div>
+                            <div className="bg-gray-900/90 backdrop-blur-xl rounded-xl p-4 border border-emerald-500/20">
+                              <p className="text-gray-400 text-sm mb-1">Win Rate</p>
+                              <p className="text-3xl font-bold text-emerald-400">{stats.winRate.toFixed(1)}%</p>
+                            </div>
+                            <div className="bg-gray-900/90 backdrop-blur-xl rounded-xl p-4 border border-green-500/20">
+                              <p className="text-gray-400 text-sm mb-1">נצחונות</p>
+                              <p className="text-3xl font-bold text-emerald-400">{stats.winners}</p>
+                            </div>
+                            <div className="bg-gray-900/90 backdrop-blur-xl rounded-xl p-4 border border-red-500/20">
+                              <p className="text-gray-400 text-sm mb-1">הפסדים</p>
+                              <p className="text-3xl font-bold text-red-400">{stats.losers}</p>
+                            </div>
+                          </>
+                        );
+                      })()}
+                    </div>
+
+                    {selectedAccount.type === 'EVAL' && selectedAccount.maxLossLimit > 0 && (() => {
+                      const today = new Date().toISOString().split('T')[0];
+                      const todayTrades = trades.filter(t => t.accountId === selectedAccount.id && t.date === today);
+                      const todayLoss = todayTrades.reduce((sum, t) => sum + (t.pnl < 0 ? t.pnl : 0), 0);
+                      const lossPercentage = (Math.abs(todayLoss) / selectedAccount.maxLossLimit) * 100;
+                      
+                      return (
+                        <div className={`bg-gray-900/90 backdrop-blur-xl rounded-xl p-4 border-2 ${
+                          lossPercentage > 80 ? 'border-red-500/50 bg-red-500/10' : 
+                          lossPercentage > 50 ? 'border-yellow-500/50 bg-yellow-500/10' : 
+                          'border-cyan-500/20'
+                        }`}>
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="text-lg font-bold text-cyan-400">MLL (Maximum Loss Limit)</h4>
+                            <span className={`text-2xl font-bold ${
+                              lossPercentage > 80 ? 'text-red-400' : 
+                              lossPercentage > 50 ? 'text-yellow-400' : 
+                              'text-emerald-400'
+                            }`}>
+                              {lossPercentage.toFixed(0)}%
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-gray-400">הפסד היום: <span className="font-bold text-red-400">${Math.abs(todayLoss).toFixed(2)}</span></span>
+                            <span className="text-gray-400">מגבלה: <span className="font-bold text-yellow-400">${selectedAccount.maxLossLimit}</span></span>
+                          </div>
+                          <div className="mt-2 h-2 bg-gray-700 rounded-full overflow-hidden">
+                            <div 
+                              className={`h-full transition-all ${
+                                lossPercentage > 80 ? 'bg-red-500' : 
+                                lossPercentage > 50 ? 'bg-yellow-500' : 
+                                'bg-emerald-500'
+                              }`}
+                              style={{ width: `${Math.min(lossPercentage, 100)}%` }}
+                            />
+                          </div>
+                          {lossPercentage > 80 && (
+                            <p className="text-xs text-red-400 mt-2 font-semibold">⚠️ Warning: Approaching Maximum Loss Limit!</p>
+                          )}
+                        </div>
+                      );
+                    })()}
+
+                    {/* Trades Table */}
+                    <div className="bg-gray-900/90 backdrop-blur-xl rounded-xl border border-cyan-500/20 overflow-hidden">
+                      <div className="p-6 border-b border-gray-700/50">
+                        <h3 className="text-2xl font-bold text-cyan-400">היסטוריית עסקאות</h3>
+                      </div>
+                      <div className="overflow-x-auto">
+                        <table className="w-full">
+                          <thead className="bg-gray-800/50">
+                            <tr>
+                              <th className="px-4 py-3 text-right text-sm text-gray-400">תאריך</th>
+                              <th className="px-4 py-3 text-right text-sm text-gray-400">סימבול</th>
+                              <th className="px-4 py-3 text-right text-sm text-gray-400">כיוון</th>
+                              <th className="px-4 py-3 text-right text-sm text-gray-400">כניסה</th>
+                              <th className="px-4 py-3 text-right text-sm text-gray-400">יציאה</th>
+                              <th className="px-4 py-3 text-right text-sm text-gray-400">P&L</th>
+                              <th className="px-4 py-3 text-right text-sm text-gray-400">תמונה</th>
+                              <th className="px-4 py-3 text-right text-sm text-gray-400">פעולות</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {getAccountTrades(selectedAccount.id).length === 0 ? (
+                              <tr><td colSpan="8" className="px-4 py-8 text-center text-gray-500">אין עסקאות</td></tr>
+                            ) : (
+                              getAccountTrades(selectedAccount.id).map(trade => (
+                                <tr key={trade.id} className="border-b border-gray-800/50 hover:bg-gray-800/30">
+                                  <td className="px-4 py-3 text-gray-300 text-sm">{trade.date}</td>
+                                  <td className="px-4 py-3 text-cyan-400 font-semibold">{trade.symbol}</td>
+                                  <td className="px-4 py-3">
+                                    <span className={`px-2 py-1 rounded text-xs ${
+                                      trade.direction === 'LONG' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'
+                                    }`}>{trade.direction}</span>
+                                  </td>
+                                  <td className="px-4 py-3 text-gray-300 text-sm">{trade.entryPrice}</td>
+                                  <td className="px-4 py-3 text-gray-300 text-sm">{trade.exitPrice}</td>
+                                  <td className="px-4 py-3">
+                                    <span className={`font-bold ${trade.pnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                                      {trade.pnl >= 0 ? '+' : ''}{trade.pnl.toFixed(2)}
+                                    </span>
+                                  </td>
+                                  <td className="px-4 py-3">
+                                    {trade.imageUrl ? (
+                                      <img 
+                                        src={trade.imageUrl} 
+                                        alt="תמונת עסקה" 
+                                        className="w-12 h-12 object-cover rounded-lg border border-cyan-500/30 cursor-pointer hover:scale-150 transition-transform"
+                                        onClick={() => window.open(trade.imageUrl, '_blank')}
+                                      />
+                                    ) : (
+                                      <span className="text-gray-600 text-xs">אין תמונה</span>
+                                    )}
+                                  </td>
+                                  <td className="px-4 py-3">
+                                    <div className="flex gap-2">
+                                      <button onClick={() => { setEditingTrade(trade); setShowTradeModal(true); }} className="p-1 text-blue-400 hover:bg-blue-500/20 rounded">
+                                        <EditIcon size={16} />
+                                      </button>
+                                      <button onClick={() => deleteTrade(trade.id)} className="p-1 text-red-400 hover:bg-red-500/20 rounded">
+                                        <TrashIcon size={16} />
+                                      </button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              ))
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {currentView === 'calendar' && (
+              <div>
+                {!selectedAccount ? (
+                  <div className="text-center py-20 text-white">
+                    <CalendarIcon size={64} className="mx-auto mb-4 text-cyan-400" />
+                    <h2 className="text-3xl font-bold mb-4">בחר תיק כדי לראות לוח שנה</h2>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {/* Account Selector */}
+                    <div className="bg-gray-900/90 backdrop-blur-xl rounded-xl p-4 border border-cyan-500/30">
+                      <div className="flex justify-between items-center mb-2">
+                        <label className="text-sm text-gray-400 flex items-center gap-2">
+                          <CalendarIcon size={16} />
+                          תיק פעיל
+                        </label>
+                        <button
+                          onClick={() => setCurrentView('accounts')}
+                          className="text-xs text-cyan-400 hover:text-cyan-300 underline flex items-center gap-1"
+                        >
+                          ניהול תיקים →
+                        </button>
+                      </div>
+                      <div className="relative">
+                        <select
+                          value={selectedAccount.id}
+                          onChange={(e) => setSelectedAccount(accounts.find(a => a.id === parseInt(e.target.value)))}
+                          className="w-full px-4 py-3 bg-gray-800 border border-cyan-500/30 rounded-lg text-gray-200 font-semibold text-lg appearance-none cursor-pointer hover:border-cyan-500/50 transition-colors"
+                        >
+                          {accounts.map(acc => (
+                            <option key={acc.id} value={acc.id}>
+                              {acc.name} ({acc.type}) - ${acc.currentBalance.toLocaleString()}
+                            </option>
+                          ))}
+                        </select>
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" className="text-cyan-400">
+                            <path d="M6 8l4 4 4-4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                          selectedAccount.type === 'EVAL' ? 'bg-yellow-500/20 text-yellow-300' :
+                          selectedAccount.type === 'EXPRESS' ? 'bg-purple-500/20 text-purple-300' :
+                          'bg-emerald-500/20 text-emerald-300'
+                        }`}>
+                          {selectedAccount.type}
+                        </span>
+                        <span className="text-sm text-gray-400">
+                          יתרה: <span className="font-bold text-cyan-400">${selectedAccount.currentBalance.toLocaleString()}</span>
+                        </span>
+                        <span className="text-sm text-gray-400">•</span>
+                        <span className="text-sm text-gray-400">
+                          {getAccountTrades(selectedAccount.id).length} עסקאות
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Calendar */}
+                    <div className="bg-gray-900/90 backdrop-blur-xl rounded-2xl p-6 border border-cyan-500/20 overflow-visible">
+                    <div className="flex justify-between items-center mb-6">
+                      <h2 className="text-3xl font-bold text-cyan-400">לוח שנה - יומן עסקאות</h2>
+                      <input
+                        type="month"
+                        value={selectedDate.substring(0, 7)}
+                        onChange={(e) => setSelectedDate(`${e.target.value}-01`)}
+                        className="px-4 py-2 bg-gray-800/50 border border-cyan-500/30 rounded-lg text-gray-200"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-7 gap-2">
+                      {['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'].map(day => (
+                        <div key={day} className="text-center font-semibold text-gray-400 py-3 text-sm">
+                          {day}
+                        </div>
+                      ))}
+                      
+                      {generateCalendarDays().map((day, index) => (
+                        <div
+                          key={index}
+                          className={`relative min-h-24 rounded-xl p-2 transition-all ${
+                            day ? (
+                              day.pnl > 0 
+                                ? 'bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/20 cursor-pointer' 
+                                : day.pnl < 0 
+                                  ? 'bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 cursor-pointer' 
+                                  : day.tradesCount > 0 
+                                    ? 'bg-gray-800/30 border border-gray-700 hover:bg-gray-800/50 cursor-pointer'
+                                    : 'bg-gray-800/20 border border-gray-700/30'
+                            ) : ''
+                          }`}
+                          onMouseEnter={() => day && day.tradesCount > 0 && handleDayMouseEnter(day)}
+                          onMouseLeave={handleDayMouseLeave}
+                        >
+                          {day && (
+                            <>
+                              <div className="font-semibold text-sm mb-1 text-gray-300">{day.day}</div>
+                              {day.tradesCount > 0 && (
+                                <div className="text-xs space-y-1">
+                                  <div className="text-gray-400">{day.tradesCount} עסקאות</div>
+                                  <div className={`font-bold text-sm ${day.pnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                                    {day.pnl >= 0 ? '+' : ''}{day.pnl.toFixed(0)}
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {hoveredDay?.date === day.date && (
+                                <div 
+                                  className="absolute z-50 bg-gray-900/95 backdrop-blur-xl rounded-xl border border-cyan-500/30 shadow-2xl"
+                                  onMouseEnter={handlePopupMouseEnter}
+                                  onMouseLeave={handlePopupMouseLeave}
+                                  style={(() => {
+                                    const isMobile = window.innerWidth < 768;
+                                    const isTopHalf = index < 14;
+                                    const isRightSide = (index % 7) < 4;
+                                    
+                                    if (isMobile) {
+                                      return {
+                                        top: isTopHalf ? '100%' : 'auto',
+                                        bottom: !isTopHalf ? '100%' : 'auto',
+                                        left: '50%',
+                                        transform: 'translateX(-50%)',
+                                        marginTop: isTopHalf ? '8px' : '0',
+                                        marginBottom: !isTopHalf ? '8px' : '0',
+                                        width: '90vw',
+                                        maxWidth: '350px',
+                                        maxHeight: '70vh',
+                                        display: 'flex',
+                                        flexDirection: 'column'
+                                      };
+                                    }
+                                    
+                                    return {
+                                      top: isTopHalf ? '100%' : 'auto',
+                                      bottom: !isTopHalf ? '100%' : 'auto',
+                                      right: !isRightSide ? 'auto' : '100%',
+                                      left: !isRightSide ? '100%' : 'auto',
+                                      marginTop: isTopHalf ? '8px' : '0',
+                                      marginBottom: !isTopHalf ? '8px' : '0',
+                                      marginRight: isRightSide ? '8px' : '0',
+                                      marginLeft: !isRightSide ? '8px' : '0',
+                                      minWidth: '320px',
+                                      maxWidth: '400px',
+                                      maxHeight: '85vh',
+                                      display: 'flex',
+                                      flexDirection: 'column'
+                                    };
+                                  })()}
+                                >
+                                    <div className="p-4 pb-3 border-b border-gray-700 flex-shrink-0">
+                                      <h3 className="font-bold text-lg text-cyan-400">{day.date}</h3>
+                                      <div className="flex justify-between items-center mt-1">
+                                        <span className="text-gray-400 text-sm">{day.tradesCount} עסקאות</span>
+                                        <span className={`font-bold text-lg ${day.pnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                                          {day.pnl >= 0 ? '+' : ''}{day.pnl.toFixed(2)}
+                                        </span>
+                                      </div>
+                                    </div>
+
+                                    <div className="p-4 pb-6 space-y-2 overflow-y-auto flex-1 relative" style={{ scrollbarWidth: 'thin', scrollbarColor: '#06b6d4 #1f2937' }}>
+                                      {day.trades.map(trade => (
+                                        <div key={trade.id} className={`p-3 rounded-lg border-2 ${
+                                          trade.pnl >= 0 ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-red-500/10 border-red-500/30'
+                                        }`}>
+                                          <div className="flex justify-between items-start mb-2">
+                                            <div className="flex items-center gap-2">
+                                              <span className="font-bold text-lg text-cyan-300">{trade.symbol}</span>
+                                              <span className={`px-2 py-0.5 rounded text-xs font-semibold ${
+                                                trade.direction === 'LONG' ? 'bg-emerald-500/30 text-emerald-300' : 'bg-red-500/30 text-red-300'
+                                              }`}>{trade.direction}</span>
+                                            </div>
+                                            <span className={`font-bold text-lg ${trade.pnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                                              {trade.pnl >= 0 ? '+' : ''}{trade.pnl.toFixed(2)}
+                                            </span>
+                                          </div>
+                                          
+                                          <div className="text-xs space-y-1 text-gray-400">
+                                            <div className="flex justify-between">
+                                              <span>שעה:</span>
+                                              <span className="font-semibold text-gray-300">{trade.time}</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                              <span>חוזים:</span>
+                                              <span className="font-semibold text-gray-300">{trade.contracts}</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                              <span>כניסה → יציאה:</span>
+                                              <span className="font-semibold text-gray-300">{trade.entryPrice} → {trade.exitPrice}</span>
+                                            </div>
+                                            {trade.strategy && (
+                                              <div className="flex justify-between">
+                                                <span>אסטרטגיה:</span>
+                                                <span className="font-semibold text-cyan-300">{trade.strategy}</span>
+                                              </div>
+                                            )}
+                                          </div>
+                                          
+                                          {trade.imageUrl && (
+                                            <div className="mt-2 pt-2 border-t border-gray-700">
+                                              <img 
+                                                src={trade.imageUrl} 
+                                                alt="תמונת עסקה" 
+                                                className="w-full h-32 object-cover rounded-lg border border-cyan-500/30 cursor-pointer hover:opacity-80 transition-opacity"
+                                                onClick={() => window.open(trade.imageUrl, '_blank')}
+                                              />
+                                            </div>
+                                          )}
+                                        </div>
+                                      ))}
+                                      
+                                      {day.tradesCount > 3 && (
+                                        <div className="text-center text-xs text-gray-500 pt-2 pb-1">
+                                          ↕️ גלול לראות עוד עסקאות
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                )}
+                            </>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {currentView === 'accounts' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {accounts.length === 0 ? (
+                  <div className="col-span-full text-center py-12 text-white">
+                    <SettingsIcon size={48} className="mx-auto mb-4 text-cyan-400" />
+                    <h2 className="text-2xl font-bold mb-4">אין תיקים עדיין</h2>
+                    <p className="text-gray-400">צור תיק חדש כדי להתחיל</p>
+                  </div>
+                ) : (
+                  accounts.map(account => {
+                    const stats = calculateStats(getAccountTrades(account.id));
+                    const totalPayouts = (account.payouts || []).reduce((s, p) => s + p.amount, 0);
+                    const profitLoss = account.currentBalance - account.initialBalance + totalPayouts;
+                    
+                    return (
+                      <div key={account.id} className="bg-gray-900/90 backdrop-blur-xl rounded-2xl p-6 border border-cyan-500/20">
+                        <div className="flex justify-between items-start mb-4">
+                          <div>
+                            <h3 className="text-xl font-bold text-cyan-400">{account.name}</h3>
+                            <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold mt-2 ${
+                              account.type === 'EVAL' ? 'bg-yellow-500/20 text-yellow-300' :
+                              account.type === 'EXPRESS' ? 'bg-purple-500/20 text-purple-300' :
+                              'bg-emerald-500/20 text-emerald-300'
+                            }`}>{account.type}</span>
+                          </div>
+                          <div className="flex gap-2">
+                            {(account.type === 'EXPRESS' || account.type === 'LIVE') && (
+                              <button onClick={() => { setSelectedAccount(account); setShowPayoutModal(true); }} className="p-2 text-emerald-400 hover:bg-emerald-500/20 rounded-lg">
+                                <DollarIcon size={20} />
+                              </button>
+                            )}
+                            <button onClick={() => { setSelectedAccount(account); setCurrentView('dashboard'); }} className="p-2 text-cyan-400 hover:bg-cyan-500/20 rounded-lg">
+                              <ChartIcon size={20} />
+                            </button>
+                            <button onClick={() => { setEditingAccount(account); setShowAccountModal(true); }} className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-lg">
+                              <EditIcon size={18} />
+                            </button>
+                            <button onClick={() => deleteAccount(account.id)} className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg">
+                              <TrashIcon size={18} />
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4 mb-4">
+                          <div className="bg-gray-800/40 rounded-lg p-3 border border-gray-700/50">
+                            <p className="text-gray-400 text-xs mb-1">יתרה</p>
+                            <p className="text-2xl font-bold text-cyan-400">${account.currentBalance.toLocaleString()}</p>
+                          </div>
+                          <div className="bg-gray-800/40 rounded-lg p-3 border border-gray-700/50">
+                            <p className="text-gray-400 text-xs mb-1">רווח/הפסד</p>
+                            <p className={`text-2xl font-bold ${profitLoss >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                              {profitLoss >= 0 ? '+' : ''}{profitLoss.toFixed(0)}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-2 text-center text-sm">
+                          <div>
+                            <p className="text-gray-500 text-xs">עסקאות</p>
+                            <p className="font-bold text-gray-200">{stats.totalTrades}</p>
+                          </div>
+                          <div>
+                            <p className="text-gray-500 text-xs">Win Rate</p>
+                            <p className="font-bold text-emerald-400">{stats.winRate.toFixed(0)}%</p>
+                          </div>
+                          <div>
+                            <p className="text-gray-500 text-xs">P&L</p>
+                            <p className={`font-bold ${stats.totalPnL >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                              {stats.totalPnL >= 0 ? '+' : ''}{stats.totalPnL.toFixed(0)}
+                            </p>
+                          </div>
+                        </div>
+
+                        {account.type === 'EVAL' && account.maxLossLimit > 0 && (
+                          <div className="mt-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3">
+                            <div className="flex justify-between items-center">
+                              <span className="text-xs text-yellow-300">MLL (Maximum Loss Limit)</span>
+                              <span className="font-bold text-yellow-400">${account.maxLossLimit}</span>
+                            </div>
+                          </div>
+                        )}
+
+                        {(account.type === 'EXPRESS' || account.type === 'LIVE') && (account.payouts || []).length > 0 && (
+                          <div className="mt-4 bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3">
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="text-xs text-emerald-300">סה"כ משיכות</span>
+                              <span className="font-bold text-emerald-400">${totalPayouts.toFixed(0)}</span>
+                            </div>
+                            <button 
+                              onClick={() => { setSelectedAccount(account); setShowPayoutModal(true); }}
+                              className="w-full text-xs text-cyan-400 hover:text-cyan-300 underline"
+                            >
+                              צפה בהיסטוריית משיכות ({account.payouts.length})
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            )}
+
+            {/* Account Modal */}
+            {showAccountModal && (
+              <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50" onClick={() => { setShowAccountModal(false); setEditingAccount(null); }}>
+                <div className="bg-gray-900 rounded-2xl p-6 border border-cyan-500/30 max-w-md w-full" onClick={e => e.stopPropagation()}>
+                  <h2 className="text-2xl font-bold text-cyan-400 mb-4">{editingAccount ? 'עריכת תיק' : 'תיק חדש'}</h2>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm text-gray-300 mb-2">שם התיק</label>
+                      <input
+                        type="text"
+                        value={editingAccount ? editingAccount.name : newAccount.name}
+                        onChange={(e) => editingAccount 
+                          ? setEditingAccount({ ...editingAccount, name: e.target.value })
+                          : setNewAccount({ ...newAccount, name: e.target.value })
+                        }
+                        className="w-full px-4 py-3 bg-gray-800 border border-cyan-500/30 rounded-lg text-gray-200"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm text-gray-300 mb-2">סוג תיק</label>
+                      <select
+                        value={editingAccount ? editingAccount.type : newAccount.type}
+                        onChange={(e) => editingAccount
+                          ? setEditingAccount({ ...editingAccount, type: e.target.value })
+                          : setNewAccount({ ...newAccount, type: e.target.value })
+                        }
+                        className="w-full px-4 py-3 bg-gray-800 border border-cyan-500/30 rounded-lg text-gray-200"
+                      >
+                        <option value="EVAL">EVAL</option>
+                        <option value="EXPRESS">EXPRESS</option>
+                        <option value="LIVE">LIVE</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm text-gray-300 mb-2">יתרה ראשונית ($)</label>
+                      <input
+                        type="number"
+                        value={editingAccount ? editingAccount.initialBalance : newAccount.initialBalance}
+                        onChange={(e) => editingAccount
+                          ? setEditingAccount({ ...editingAccount, initialBalance: parseFloat(e.target.value) })
+                          : setNewAccount({ ...newAccount, initialBalance: parseFloat(e.target.value) })
+                        }
+                        className="w-full px-4 py-3 bg-gray-800 border border-cyan-500/30 rounded-lg text-gray-200"
+                      />
+                    </div>
+
+                    {(editingAccount ? editingAccount.type === 'EVAL' : newAccount.type === 'EVAL') && (
+                      <div>
+                        <label className="block text-sm text-gray-300 mb-2">MLL (Maximum Loss Limit) ($)</label>
+                        <input
+                          type="number"
+                          value={editingAccount ? (editingAccount.maxLossLimit || 0) : newAccount.maxLossLimit}
+                          onChange={(e) => editingAccount
+                            ? setEditingAccount({ ...editingAccount, maxLossLimit: parseFloat(e.target.value) || 0 })
+                            : setNewAccount({ ...newAccount, maxLossLimit: parseFloat(e.target.value) || 0 })
+                          }
+                          className="w-full px-4 py-3 bg-gray-800 border border-cyan-500/30 rounded-lg text-gray-200"
+                          placeholder="0 = ללא הגבלה"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Set the maximum allowed daily loss (0 = unlimited)</p>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex gap-3 mt-6">
+                    <button
+                      onClick={editingAccount ? updateAccount : addAccount}
+                      className="flex-1 bg-cyan-500 text-white py-3 rounded-xl font-semibold hover:bg-cyan-600"
+                    >
+                      {editingAccount ? 'עדכן' : 'צור'}
+                    </button>
+                    <button
+                      onClick={() => { setShowAccountModal(false); setEditingAccount(null); }}
+                      className="flex-1 bg-gray-700 text-gray-300 py-3 rounded-xl font-semibold hover:bg-gray-600"
+                    >
+                      ביטול
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Trade Modal */}
+            {showTradeModal && (
+              <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 overflow-y-auto" onClick={() => { setShowTradeModal(false); setEditingTrade(null); }}>
+                <div className="bg-gray-900 rounded-2xl p-6 border border-cyan-500/30 max-w-2xl w-full my-8" onClick={e => e.stopPropagation()}>
+                  <h2 className="text-2xl font-bold text-cyan-400 mb-4">{editingTrade ? 'עריכת עסקה' : 'עסקה חדשה'}</h2>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm text-gray-300 mb-2">תאריך</label>
+                      <input type="date" value={editingTrade ? editingTrade.date : newTrade.date}
+                        onChange={(e) => editingTrade ? setEditingTrade({ ...editingTrade, date: e.target.value }) : setNewTrade({ ...newTrade, date: e.target.value })}
+                        className="w-full px-4 py-3 bg-gray-800 border border-cyan-500/30 rounded-lg text-gray-200"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm text-gray-300 mb-2">סימבול</label>
+                      <select value={editingTrade ? editingTrade.symbol : newTrade.symbol}
+                        onChange={(e) => editingTrade ? setEditingTrade({ ...editingTrade, symbol: e.target.value }) : setNewTrade({ ...newTrade, symbol: e.target.value })}
+                        className="w-full px-4 py-3 bg-gray-800 border border-cyan-500/30 rounded-lg text-gray-200"
+                      >
+                        <option value="NQ">NQ</option>
+                        <option value="ES">ES</option>
+                        <option value="MNQ">MNQ</option>
+                        <option value="MES">MES</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm text-gray-300 mb-2">כיוון</label>
+                      <select value={editingTrade ? editingTrade.direction : newTrade.direction}
+                        onChange={(e) => editingTrade ? setEditingTrade({ ...editingTrade, direction: e.target.value }) : setNewTrade({ ...newTrade, direction: e.target.value })}
+                        className="w-full px-4 py-3 bg-gray-800 border border-cyan-500/30 rounded-lg text-gray-200"
+                      >
+                        <option value="LONG">LONG</option>
+                        <option value="SHORT">SHORT</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm text-gray-300 mb-2">חוזים</label>
+                      <input type="number" value={editingTrade ? editingTrade.contracts : newTrade.contracts}
+                        onChange={(e) => editingTrade ? setEditingTrade({ ...editingTrade, contracts: parseInt(e.target.value) }) : setNewTrade({ ...newTrade, contracts: parseInt(e.target.value) })}
+                        className="w-full px-4 py-3 bg-gray-800 border border-cyan-500/30 rounded-lg text-gray-200"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm text-gray-300 mb-2">מחיר כניסה</label>
+                      <input type="number" step="0.01" value={editingTrade ? editingTrade.entryPrice : newTrade.entryPrice}
+                        onChange={(e) => editingTrade ? setEditingTrade({ ...editingTrade, entryPrice: parseFloat(e.target.value) }) : setNewTrade({ ...newTrade, entryPrice: parseFloat(e.target.value) })}
+                        className="w-full px-4 py-3 bg-gray-800 border border-cyan-500/30 rounded-lg text-gray-200"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm text-gray-300 mb-2">מחיר יציאה</label>
+                      <input type="number" step="0.01" value={editingTrade ? editingTrade.exitPrice : newTrade.exitPrice}
+                        onChange={(e) => editingTrade ? setEditingTrade({ ...editingTrade, exitPrice: parseFloat(e.target.value) }) : setNewTrade({ ...newTrade, exitPrice: parseFloat(e.target.value) })}
+                        className="w-full px-4 py-3 bg-gray-800 border border-cyan-500/30 rounded-lg text-gray-200"
+                      />
+                    </div>
+
+                    <div className="col-span-2">
+                      <label className="block text-sm text-gray-300 mb-2">תמונת העסקה (אופציונלי)</label>
+                      <input 
+                        type="file" 
+                        accept="image/*"
+                        onChange={(e) => handleImageUpload(e, !!editingTrade)}
+                        className="w-full px-4 py-3 bg-gray-800 border border-cyan-500/30 rounded-lg text-gray-200 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-cyan-500 file:text-white file:cursor-pointer hover:file:bg-cyan-600"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">מקסימום 5MB</p>
+                      {(editingTrade?.imageUrl || newTrade.imageUrl) && (
+                        <div className="mt-3 relative">
+                          <img 
+                            src={editingTrade ? editingTrade.imageUrl : newTrade.imageUrl} 
+                            alt="תמונת עסקה" 
+                            className="w-full h-48 object-cover rounded-lg border border-cyan-500/30"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => editingTrade ? setEditingTrade({ ...editingTrade, imageUrl: '' }) : setNewTrade({ ...newTrade, imageUrl: '' })}
+                            className="absolute top-2 left-2 bg-red-500 text-white p-2 rounded-lg hover:bg-red-600"
+                          >
+                            <TrashIcon size={16} />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="col-span-2">
+                      <label className="block text-sm text-gray-300 mb-2">אסטרטגיה</label>
+                      <input type="text" value={editingTrade ? editingTrade.strategy : newTrade.strategy}
+                        onChange={(e) => editingTrade ? setEditingTrade({ ...editingTrade, strategy: e.target.value }) : setNewTrade({ ...newTrade, strategy: e.target.value })}
+                        className="w-full px-4 py-3 bg-gray-800 border border-cyan-500/30 rounded-lg text-gray-200"
+                      />
+                    </div>
+
+                    <div className="col-span-2">
+                      <label className="block text-sm text-gray-300 mb-2">הערות</label>
+                      <textarea value={editingTrade ? editingTrade.notes : newTrade.notes}
+                        onChange={(e) => editingTrade ? setEditingTrade({ ...editingTrade, notes: e.target.value }) : setNewTrade({ ...newTrade, notes: e.target.value })}
+                        className="w-full px-4 py-3 bg-gray-800 border border-cyan-500/30 rounded-lg text-gray-200" rows="2"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3 mt-6">
+                    <button onClick={editingTrade ? updateTrade : addTrade} className="flex-1 bg-cyan-500 text-white py-3 rounded-xl font-semibold hover:bg-cyan-600">
+                      {editingTrade ? 'עדכן' : 'הוסף'}
+                    </button>
+                    <button onClick={() => { setShowTradeModal(false); setEditingTrade(null); }} className="flex-1 bg-gray-700 text-gray-300 py-3 rounded-xl font-semibold hover:bg-gray-600">
+                      ביטול
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Payout Modal */}
+            {showPayoutModal && selectedAccount && (
+              <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50" onClick={() => setShowPayoutModal(false)}>
+                <div className="bg-gray-900 rounded-2xl p-6 border border-emerald-500/30 max-w-md w-full" onClick={e => e.stopPropagation()}>
+                  <h2 className="text-2xl font-bold text-emerald-400 mb-4">משיכה (Payout)</h2>
+                  
+                  <div className="mb-4 p-4 bg-cyan-500/10 rounded-xl border border-cyan-500/30">
+                    <p className="text-sm text-gray-400">תיק: {selectedAccount.name}</p>
+                    <p className="text-2xl font-bold text-gray-100 mt-1">
+                      יתרה: ${selectedAccount.currentBalance.toLocaleString()}
+                    </p>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm text-gray-300 mb-2">סכום ($)</label>
+                      <input type="number" value={payoutData.amount}
+                        onChange={(e) => setPayoutData({ ...payoutData, amount: e.target.value })}
+                        className="w-full px-4 py-3 bg-gray-800 border border-emerald-500/30 rounded-lg text-gray-200"
+                        max={selectedAccount.currentBalance}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm text-gray-300 mb-2">תאריך</label>
+                      <input type="date" value={payoutData.date}
+                        onChange={(e) => setPayoutData({ ...payoutData, date: e.target.value })}
+                        className="w-full px-4 py-3 bg-gray-800 border border-emerald-500/30 rounded-lg text-gray-200"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm text-gray-300 mb-2">הערות</label>
+                      <textarea value={payoutData.notes}
+                        onChange={(e) => setPayoutData({ ...payoutData, notes: e.target.value })}
+                        className="w-full px-4 py-3 bg-gray-800 border border-emerald-500/30 rounded-lg text-gray-200" rows="2"
+                      />
+                    </div>
+                  </div>
+
+                  {selectedAccount.payouts && selectedAccount.payouts.length > 0 && (
+                    <div className="mt-6 border-t border-gray-700 pt-4">
+                      <h3 className="text-lg font-bold text-cyan-400 mb-3">היסטוריית משיכות</h3>
+                      <div className="space-y-2 max-h-48 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: '#10b981 #1f2937' }}>
+                        {[...selectedAccount.payouts].reverse().map((payout, idx) => (
+                          <div key={idx} className="bg-gray-800/50 rounded-lg p-3 border border-emerald-500/20">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <p className="font-bold text-emerald-400">${payout.amount}</p>
+                                <p className="text-xs text-gray-400 mt-1">{payout.date}</p>
+                                {payout.notes && (
+                                  <p className="text-xs text-gray-500 mt-1">{payout.notes}</p>
+                                )}
+                              </div>
+                              <span className="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded">
+                                #{selectedAccount.payouts.length - idx}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="mt-3 p-2 bg-cyan-500/10 rounded-lg border border-cyan-500/30">
+                        <p className="text-sm text-gray-300">
+                          סה"כ משיכות: <span className="font-bold text-emerald-400">${selectedAccount.payouts.reduce((s, p) => s + p.amount, 0).toFixed(0)}</span>
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex gap-3 mt-6">
+                    <button onClick={processPayout} className="flex-1 bg-emerald-500 text-white py-3 rounded-xl font-semibold hover:bg-emerald-600">
+                      אשר משיכה
+                    </button>
+                    <button onClick={() => { setShowPayoutModal(false); setPayoutData({ amount: 0, date: new Date().toISOString().split('T')[0], notes: '' }); }} className="flex-1 bg-gray-700 text-gray-300 py-3 rounded-xl font-semibold hover:bg-gray-600">
+                      ביטול
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    };
+
+    try {
+      console.log('🎨 Rendering to DOM...');
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(<App />);
+      console.log('✅ Render complete!');
+      
+      // Loading screen will be removed by App component when ready
+    } catch (err) {
+      console.error('❌ Render error:', err);
+      document.getElementById('root').innerHTML = `
+        <div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: #1a1a2e; color: white;">
+          <div style="text-align: center; padding: 20px;">
+            <h1 style="color: #f44; font-size: 32px; margin-bottom: 16px;">שגיאה בטעינה</h1>
+            <p style="color: #888; margin-bottom: 8px;">${err.message}</p>
+            <p style="color: #666; font-size: 14px;">פתח Console (F12) לפרטים נוספים</p>
+          </div>
+        </div>
+      `;
+    }
+  </script>
 </body>
 </html>
